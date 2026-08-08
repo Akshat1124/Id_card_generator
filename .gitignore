@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Build output (if Vite is adopted later)
+dist/
+.vite/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/settings.json
+.idea/
+*.swp
+*.swo
+
+# Env files (in case any are added)
+.env
+.env.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Temp files
+*.tmp
+*.temp
