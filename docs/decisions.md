@@ -139,10 +139,10 @@ If the UI grows beyond 3 distinct "pages" or requires complex reactive state, re
 
 ---
 
-## ADR-007: OG Image Strategy for X Link Preview — TBD
+## ADR-007: OG Image Strategy for X Link Preview
 
 **Date:** 9 August 2026  
-**Status:** ⏳ Pending Decision
+**Status:** ✅ Accepted
 
 ### Context
 When the tool's URL is shared on X, the link preview should show a compelling branded graphic, not a blank thumbnail. The `og:image` meta tag must point to a real, publicly accessible image.
@@ -150,12 +150,23 @@ When the tool's URL is shared on X, the link preview should show a compelling br
 ### Options Considered
 | Option | Description | Pros | Cons |
 |---|---|---|---|
-| **Static pre-generated OG image** | A single, fixed branded image in `/assets/` | Zero infra, works with GitHub Pages | Not personalised; shows generic branding |
-| **Dynamic OG image via serverless function** | Vercel/Netlify function generates an OG PNG on-demand | Can show real graphic | Requires server function; adds complexity |
-| **Canvas-to-URL + hosted upload** | Upload blob to a temp CDN | Personalised preview | Complex, requires an upload service |
+| **Static pre-generated OG image** | A single, fixed branded image in `/assets/` | Zero infra, works on Vercel | Not personalised; shows generic branding |
+| **Dynamic OG image via serverless function** | Vercel edge function generates PNG on-demand | Personalised | Adds complexity, tight deadline |
+| **Canvas-to-URL + hosted upload** | Upload blob to a temp CDN | Personalised | Complex, requires an upload service |
 
-### Pending
-**Recommended:** Start with Option 1 (static OG image) to hit the deadline. If time allows, explore Option 2 via a Vercel edge function.
+### Decision
+**Option 1 — Static pre-generated OG image.** Confirmed by project owner to hit the deadline.
+
+### Implementation (for OpenCode)
+1. Generate `assets/og-image.png` (1200×630 px) programmatically using a one-time canvas script during development
+2. Content: dark brand background + "HH GOA 2026" large text + "#FrameInGoa" subtitle
+3. Reference it in `index.html`:
+   ```html
+   <meta property="og:image" content="https://<your-vercel-domain>/assets/og-image.png">
+   <meta name="twitter:image" content="https://<your-vercel-domain>/assets/og-image.png">
+   ```
+4. The absolute URL must be used (not a relative path) for X/Twitter card validator to pick it up
+5. Validate with [Twitter Card Validator](https://cards-dev.twitter.com/validator) after deploy
 
 ---
 
@@ -174,3 +185,72 @@ Twitter's Intent URL (`https://twitter.com/intent/tweet?text=…`) lets us pre-f
 
 ### Rationale
 The Web Share API on mobile (especially iOS 16+ and Android) supports sharing files including images, which the X mobile app can pick up directly. This gives the best mobile UX. Desktop falls back to the Intent URL.
+
+---
+
+## ADR-009: Avoid `OffscreenCanvas` for Photo Preview — Use Regular Canvas
+
+**Date:** 9 August 2026  
+**Status:** ✅ Accepted
+
+### Context
+The original `main.js` snippet in `AGENTS.md` used `OffscreenCanvas.convertToBlob()` to generate the photo preview thumbnail. `OffscreenCanvas` is **not supported in older iOS Safari (< 16.4)** and its `convertToBlob()` method has patchy mobile coverage.
+
+### Decision
+Do **not** use `OffscreenCanvas` anywhere in the codebase. For generating the photo preview, use a regular `<canvas>` element:
+
+```js
+// ✅ Safe: regular canvas
+async function bitmapToObjectURL(bitmap) {
+  const c = document.createElement('canvas')
+  c.width = bitmap.width
+  c.height = bitmap.height
+  c.getContext('2d').drawImage(bitmap, 0, 0)
+  return new Promise((resolve) => {
+    c.toBlob((blob) => resolve(URL.createObjectURL(blob)), 'image/jpeg', 0.8)
+  })
+}
+```
+
+### Applies To
+`scripts/main.js` — the photo preview generation after upload.
+
+---
+
+## ADR-010: `heic2any` CDN Failure — Graceful Error Path Required
+
+**Date:** 9 August 2026  
+**Status:** ✅ Accepted
+
+### Context
+`heic2any` is loaded from `cdn.jsdelivr.net`. If the CDN is down or the user's network blocks it, `window.heic2any` will be `undefined`, causing a silent crash when an iPhone user uploads a HEIC file.
+
+### Decision
+In `scripts/upload.js`, guard every `heic2any` call:
+
+```js
+if (isHeic) {
+  if (typeof heic2any === 'undefined') {
+    throw new Error(
+      'HEIC conversion library failed to load. ' +
+      'Please convert your photo to JPG on your device and try again.'
+    )
+  }
+  blob = await heic2any({ blob: file, toType: 'image/png', quality: 0.92 })
+  if (Array.isArray(blob)) blob = blob[0]
+}
+```
+
+The calling code in `main.js` must catch this error and show a user-friendly toast:
+```
+"HEIC conversion failed. Please convert your photo to JPG and try again."
+```
+
+### Also: detect load failure at startup
+In `index.html` after the `heic2any` script tag, add an inline check:
+```html
+<script>
+  window.__heic2anyLoaded = typeof heic2any !== 'undefined'
+</script>
+```
+Then in `upload.js`, check `window.__heic2anyLoaded` before attempting HEIC conversion.

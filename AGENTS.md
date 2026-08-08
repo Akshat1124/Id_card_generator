@@ -248,6 +248,8 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
 
   <!-- heic2any CDN -->
   <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <!-- ADR-010: detect CDN load failure before any upload attempt -->
+  <script>window.__heic2anyLoaded = typeof heic2any !== 'undefined'</script>
 
   <!-- App entry point -->
   <script type="module" src="scripts/main.js"></script>
@@ -486,7 +488,13 @@ export async function fileToImageBitmap(file) {
                  || file.name.toLowerCase().endsWith('.heif')
 
   if (isHeic) {
-    // heic2any is loaded globally via CDN script tag
+    // ADR-010: guard against CDN load failure
+    if (typeof heic2any === 'undefined') {
+      throw new Error(
+        'HEIC conversion library failed to load. ' +
+        'Please convert your photo to JPG on your device and try again.'
+      )
+    }
     blob = await heic2any({ blob: file, toType: 'image/png', quality: 0.92 })
     if (Array.isArray(blob)) blob = blob[0]
   }
@@ -875,16 +883,24 @@ async function handleFile(file) {
 
   setLoading(true)
   try {
-    currentImageBitmap = await fileToImageBitmap(file)
-    // Show photo preview
-    const offscreen = new OffscreenCanvas(currentImageBitmap.width, currentImageBitmap.height)
-    const ctx = offscreen.getContext('2d')
-    ctx.drawImage(currentImageBitmap, 0, 0)
-    const previewBlob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.8 })
-    photoPreview.src = URL.createObjectURL(previewBlob)
+    currentImageBitmap = await fileToImageBitmap(file)  // throws if heic2any missing
+
+    // ADR-009: use regular canvas (not OffscreenCanvas) for Safari compatibility
+    const previewCanvas = document.createElement('canvas')
+    previewCanvas.width = currentImageBitmap.width
+    previewCanvas.height = currentImageBitmap.height
+    previewCanvas.getContext('2d').drawImage(currentImageBitmap, 0, 0)
+    const previewObjectURL = await new Promise((resolve) => {
+      previewCanvas.toBlob((blob) => resolve(URL.createObjectURL(blob)), 'image/jpeg', 0.8)
+    })
+    photoPreview.src = previewObjectURL
     showStep('step-config')
   } catch (e) {
-    showUploadError('Could not process your photo. Please try a different file.')
+    // Show the specific error message if it came from our guards, otherwise generic
+    const msg = e.message && e.message.includes('HEIC')
+      ? e.message
+      : 'Could not process your photo. Please try a different file.'
+    showUploadError(msg)
     console.error(e)
   } finally {
     setLoading(false)
