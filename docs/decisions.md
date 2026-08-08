@@ -6,6 +6,9 @@
 
 ## ADR-001: 100% Client-Side Processing (No Backend)
 
+> **Brand assets status (9 Aug 2026):** Official logo, frame PNGs, and card template PNGs are being arranged by the project owner. Until they arrive, OpenCode must build with **placeholder assets** (see `docs/design-brief.md` §10 and `AGENTS.md` §Placeholder Assets). The code must be written so swapping in real PNGs requires only replacing files in `assets/`, with **zero code changes**.
+
+
 **Date:** 9 August 2026  
 **Status:** ✅ Accepted
 
@@ -114,23 +117,25 @@ If the UI grows beyond 3 distinct "pages" or requires complex reactive state, re
 
 ---
 
-## ADR-006: Hosting Platform — TBD
+## ADR-006: Hosting Platform — Vercel
 
 **Date:** 9 August 2026  
-**Status:** ⏳ Pending Decision
+**Status:** ✅ Accepted
 
-### Context
-The app needs to be hosted at a public URL before the 13 Aug 2026 deadline.
+### Decision
+**Vercel** — confirmed by project owner on 9 August 2026.
 
-### Options
-| Platform | Free Tier | Custom Domain | Deploy from Git | Notes |
-|---|---|---|---|---|
-| **Vercel** | Yes | Yes | Yes | Best DX; supports edge functions if OG image route is needed |
-| **Netlify** | Yes | Yes | Yes | Great for static sites; supports Netlify Functions |
-| **GitHub Pages** | Yes | Yes (CNAME) | Yes | Simplest; no serverless functions |
+### Rationale
+- Best developer experience for static sites
+- Supports Vercel Edge Functions if a dynamic OG image route is needed later
+- Zero-config deploy from GitHub
+- Free tier is sufficient for the submission window
 
-### Pending
-Decision depends on whether we need a serverless function for the OG image (see ADR-007).
+### Deployment Steps (for OpenCode)
+1. Ensure `vercel.json` is created at repo root with correct config
+2. Run `npx vercel --prod` from the repo root, or connect GitHub repo to Vercel dashboard
+3. Set the output directory to `.` (root) since there is no build step for the vanilla version
+4. Update `README.md` live demo link once the URL is known
 
 ---
 

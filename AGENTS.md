@@ -1,147 +1,1070 @@
-# AGENTS.md — AI Coding Assistant Guide
+# AGENTS.md — Implementation Manual for OpenCode
 
-> This file is the primary context document for any AI coding assistant (Antigravity, Claude Code, OpenCode, Cursor, Copilot, etc.) working on this repository. **Read this file first before touching any code.**
-
----
-
-## Project in One Sentence
-
-Build a **client-side, zero-login web tool** that lets users upload a photo and instantly download/share a branded **HH Goa 2026** graphic (either a PFP frame or a Builder ID card) on X (Twitter).
+> **Who reads this:** OpenCode (or any AI coding assistant). This is your primary instruction file. Read every section before writing a single line of code. All decisions have already been made — your job is to implement them exactly as described here.
 
 ---
 
-## Repo Map
+## 0. Mission
 
-```
-Id_card_generator/
-├── index.html              ← Single entry point; all UI lives here
-├── styles/
-│   ├── main.css            ← Design tokens (colors, fonts, spacing), layout, reset
-│   └── components.css      ← Per-component styles
-├── scripts/
-│   ├── main.js             ← App bootstrap; orchestrates module imports
-│   ├── canvas.js           ← ALL image compositing logic (Canvas API)
-│   ├── upload.js           ← File input handling + HEIC→PNG conversion
-│   ├── share.js            ← Twitter Intent URL + Web Share API
-│   └── ui.js               ← DOM helpers, step-wizard transitions, toasts
-├── assets/
-│   ├── frame-a/            ← PFP frame overlay PNGs
-│   ├── frame-b/            ← ID card background template(s)
-│   └── fonts/              ← Self-hosted fonts (if any)
-├── docs/
-│   ├── architecture.md     ← System design & data flow
-│   ├── decisions.md        ← Architecture Decision Records (ADRs)
-│   └── design-brief.md     ← Visual design & branding guidelines
-├── project_brain/          ← Original PDF spec; read-only reference
-├── README.md
-├── PRD.md                  ← Full product requirements
-└── tasks.md                ← Task list & progress tracker
-```
+Build a **client-side, zero-login web tool** called the **HH Goa 2026 Frame / ID Card Generator**. Users upload a photo and instantly get a branded graphic to download and share on X (Twitter). No backend. No framework. Deadline: **11:59 PM, 13 August 2026**.
+
+For full context, read these files in order:
+1. [`PRD.md`](./PRD.md) — what to build and why
+2. [`docs/architecture.md`](./docs/architecture.md) — how it works technically
+3. [`docs/design-brief.md`](./docs/design-brief.md) — how it looks
+4. [`docs/decisions.md`](./docs/decisions.md) — every major decision already made
+5. [`tasks.md`](./tasks.md) — the ordered task list; mark tasks as you go
 
 ---
 
-## Core Constraints — Never Violate These
+## 1. Locked-In Decisions (Do Not Re-Debate)
 
-| # | Rule |
+| Decision | Answer |
 |---|---|
-| 1 | **No backend required.** All image compositing must happen in the browser via the Canvas API. |
-| 2 | **No login / signup gate** before the user sees their result. |
-| 3 | **HEIC must be supported** — use the `heic2any` library for client-side conversion. |
-| 4 | **Output must be a real downloadable file** (PNG), not a CSS screenshot. Use `canvas.toBlob()` + an `<a download>` link. |
-| 5 | **Mobile-first.** Every UI interaction must work on a phone. Test at 390 px wide. |
-| 6 | **Share to X must include `#FrameInGoa`** in the pre-filled tweet text. |
-| 7 | **Speed is UX.** Processing must feel near-instant. Never show a long spinner for local canvas operations. |
+| Backend? | ❌ None. 100% client-side Canvas API only. |
+| Framework? | ❌ None. Vanilla HTML + CSS + ES modules only. |
+| CSS framework? | ❌ None. Vanilla CSS with custom properties. |
+| HEIC support? | ✅ Use `heic2any` from CDN. |
+| Output format? | ✅ PNG via `canvas.toBlob('image/png')`. |
+| Output sizes? | Format A: 1080×1080 px · Format B: 1080×1350 px |
+| Hosting? | ✅ Vercel. Create `vercel.json`. |
+| Share to X? | ✅ Web Share API (mobile) + Twitter Intent URL (fallback). |
+| Hashtag? | ✅ `#FrameInGoa` must appear in every pre-filled tweet. |
 
 ---
 
-## Coding Style & Conventions
+## 2. Repository Layout
 
-### HTML
-- Semantic elements (`<main>`, `<section>`, `<figure>`, `<button>`, etc.)
-- All interactive elements must have unique `id` attributes for testability
-- Single `<h1>` per page
+Implement files in this exact structure. Do not create any other top-level files or directories without approval.
 
-### CSS
-- Vanilla CSS only (no Tailwind, no Bootstrap)
-- Use CSS custom properties for all design tokens:
-  ```css
-  :root {
-    --color-brand-primary: /* HH Goa accent color */;
-    --color-bg: /* dark background */;
-    --font-heading: 'Inter', sans-serif;
-    --radius-card: 16px;
+```
+Id_card_generator/              ← repo root
+├── index.html                  ← ONLY HTML file; all UI is here
+├── styles/
+│   ├── main.css                ← Design tokens + global reset + layout
+│   └── components.css          ← Per-component styles
+├── scripts/
+│   ├── main.js                 ← Entry point; wires everything together
+│   ├── canvas.js               ← ALL compositing logic
+│   ├── upload.js               ← File input + HEIC conversion
+│   ├── share.js                ← Twitter Intent + Web Share API
+│   └── ui.js                   ← Step wizard, DOM helpers, toasts
+├── assets/
+│   ├── frame-a/
+│   │   └── overlay.png         ← PFP frame overlay (1080×1080, transparent center)
+│   ├── frame-b/
+│   │   └── card-bg.png         ← ID card background (1080×1350)
+│   └── fonts/                  ← (empty; use Google Fonts CDN)
+├── docs/                       ← Do not modify these during implementation
+├── project_brain/              ← READ ONLY. Never modify.
+├── vercel.json
+├── .gitignore
+├── README.md
+├── AGENTS.md                   ← This file
+├── PRD.md
+└── tasks.md
+```
+
+---
+
+## 3. Placeholder Assets
+
+**Real brand assets are being arranged.** Until they arrive, you MUST generate placeholder assets programmatically so the app is fully functional. The code must require **zero changes** when real assets drop in.
+
+### Placeholder Strategy
+
+Generate both placeholder PNGs using a **one-time canvas script** (`scripts/generate-placeholders.js`) that writes files to `assets/`. Better yet, draw the placeholders directly in canvas at runtime if files are missing — detect via `img.onerror`.
+
+**Placeholder Frame A (overlay.png):**
+- 1080×1080 transparent PNG
+- 20px border of `#6C47FF` (violet) with rounded corners (80px radius)
+- Bottom strip (height 120px): `#6C47FF` background, white text "HH GOA 2026" centered, 48px Inter 700
+- Small "#FrameInGoa" text at bottom right in white, 24px
+
+**Placeholder Card Background (card-bg.png):**
+- 1080×1350 px
+- Dark gradient background: `#0A0E1A` → `#141824`
+- Header zone (top 200px): `#6C47FF` bar, "HH GOA 2026 · BUILDER PASS" in white Inter 800 56px centered
+- Photo zone outline: dashed white rectangle at left 40% × center vertical
+- Footer zone (bottom 100px): `#6C47FF` bar, "GOA · AUGUST 2026  |  #HHGoa2026" centered white 28px
+
+### Runtime Fallback Pattern
+
+```js
+// In canvas.js — load an asset with a programmatic fallback
+async function loadAsset(src, fallbackDrawFn) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.onload = () => resolve(img)
+    img.onerror = () => {
+      // Real asset not found; create it programmatically on a temp canvas
+      const c = document.createElement('canvas')
+      fallbackDrawFn(c)
+      const fallbackImg = new Image()
+      fallbackImg.onload = () => resolve(fallbackImg)
+      fallbackImg.src = c.toDataURL()
+    }
+    img.src = src
+  })
+}
+```
+
+---
+
+## 4. Implementation — File by File
+
+Work through these in order. Mark each task `[/]` when started and `[x]` when done in `tasks.md`.
+
+---
+
+### 4.1 `index.html`
+
+**Rules:**
+- Single `<h1>` on the page
+- All interactive elements have unique `id` attributes
+- Google Fonts loaded in `<head>` (Inter 400, 500, 600, 700, 800)
+- `heic2any` loaded from CDN before `scripts/main.js`
+- `<script type="module" src="scripts/main.js">` at bottom of `<body>`
+- Full OG meta tags in `<head>`
+
+**Structure (exact sections, in order):**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HH Goa 2026 — Frame Generator</title>
+  <meta name="description" content="Generate your branded HH Goa 2026 graphic. Upload your photo, download your frame, share on X. #FrameInGoa">
+
+  <!-- OG / Twitter Card -->
+  <meta property="og:title" content="HH Goa 2026 — Frame Generator">
+  <meta property="og:description" content="Get your HH Goa 2026 builder frame. Upload, generate, share. #FrameInGoa">
+  <meta property="og:image" content="assets/og-image.png">  <!-- generate this static OG image -->
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="assets/og-image.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header__logo">HH GOA 2026</div>
+    <p class="header__tagline">Get your builder frame. Share on X.</p>
+  </header>
+
+  <!-- MAIN APP -->
+  <main class="app" id="app">
+
+    <!-- STEP 1: Upload -->
+    <section class="step step--active" id="step-upload" aria-label="Step 1: Upload photo">
+      <h1 class="step__title">Drop your photo</h1>
+      <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload photo">
+        <div class="upload-zone__icon">↑</div>
+        <p class="upload-zone__text">Tap to upload or drag your photo here</p>
+        <p class="upload-zone__hint">JPG, PNG, HEIC · Max 20 MB</p>
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif" hidden>
+      </div>
+      <p class="upload-zone__error" id="upload-error" role="alert" hidden></p>
+    </section>
+
+    <!-- STEP 2: Format + Fields -->
+    <section class="step" id="step-config" aria-label="Step 2: Choose format" hidden>
+
+      <!-- Photo preview -->
+      <div class="photo-preview" id="photo-preview-container">
+        <img id="photo-preview" alt="Your uploaded photo" class="photo-preview__img">
+        <button class="btn btn--ghost btn--sm" id="btn-change-photo">Change photo</button>
+      </div>
+
+      <!-- Format toggle -->
+      <div class="format-toggle" id="format-toggle" role="group" aria-label="Choose format">
+        <button class="format-toggle__btn format-toggle__btn--active" id="btn-format-a" data-format="a">
+          <span class="format-toggle__label">PFP Frame</span>
+          <span class="format-toggle__desc">Wraps your photo for X profile</span>
+        </button>
+        <button class="format-toggle__btn" id="btn-format-b" data-format="b">
+          <span class="format-toggle__label">Builder ID Card</span>
+          <span class="format-toggle__desc">Event badge with your details</span>
+        </button>
+      </div>
+
+      <!-- Format B fields (shown only when B is selected) -->
+      <div class="fields" id="fields-b" hidden>
+        <label class="field" for="input-name">
+          <span class="field__label">Your Name</span>
+          <input class="field__input" id="input-name" type="text" placeholder="Akshat Srivastava" maxlength="40" autocomplete="name">
+        </label>
+        <label class="field" for="input-stack">
+          <span class="field__label">Stack / Role</span>
+          <input class="field__input" id="input-stack" type="text" placeholder="Full-Stack · Builder · Founder" maxlength="60">
+        </label>
+        <div class="field field--title">
+          <span class="field__label">Your Builder Title</span>
+          <div class="builder-title">
+            <span class="builder-title__text" id="builder-title-display">Prompt Whisperer</span>
+            <button class="btn btn--ghost btn--sm" id="btn-reroll" aria-label="Generate new builder title">🎲 Re-roll</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn--primary btn--lg" id="btn-generate">Generate My Graphic ✨</button>
+    </section>
+
+    <!-- STEP 3: Output -->
+    <section class="step" id="step-output" aria-label="Step 3: Your graphic" hidden>
+      <h2 class="step__title">Here's your graphic! 🚀</h2>
+      <div class="output-preview" id="output-preview-container">
+        <img id="output-preview" alt="Your HH Goa 2026 graphic" class="output-preview__img">
+      </div>
+      <div class="output-actions">
+        <button class="btn btn--primary btn--lg" id="btn-download">⬇ Download PNG</button>
+        <button class="btn btn--x btn--lg" id="btn-share-x">𝕏 Share on X</button>
+      </div>
+      <button class="btn btn--ghost btn--sm" id="btn-start-over">Start over</button>
+    </section>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay" hidden aria-live="polite">
+      <div class="loading-overlay__spinner"></div>
+      <p class="loading-overlay__text">Generating your graphic…</p>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>HH Goa 2026 · <a href="https://forms.gle/jM5hTaGvsrfEfixPA" target="_blank" rel="noopener">Submit your entry</a></p>
+  </footer>
+
+  <!-- heic2any CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+
+  <!-- App entry point -->
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>
+```
+
+---
+
+### 4.2 `styles/main.css`
+
+Define all CSS custom properties here. No component-specific rules (those go in `components.css`).
+
+```css
+/* =========================================================
+   DESIGN TOKENS
+   ========================================================= */
+:root {
+  /* Brand */
+  --color-brand-primary:   #0A0E1A;
+  --color-brand-accent:    #6C47FF;
+  --color-brand-accent-h:  #8266FF;   /* hover: 10% lighter */
+  --color-brand-gold:      #F5C518;
+
+  /* Surfaces */
+  --color-bg:              #0A0E1A;
+  --color-surface:         #141824;
+  --color-surface-raised:  #1E2433;
+  --color-border:          rgba(255, 255, 255, 0.09);
+
+  /* Text */
+  --color-text-primary:    #F0F0F0;
+  --color-text-secondary:  #8A8FA8;
+  --color-text-accent:     #6C47FF;
+
+  /* Semantic */
+  --color-success:         #22C55E;
+  --color-error:           #EF4444;
+  --color-x-black:         #000000;   /* X/Twitter brand color */
+
+  /* Spacing */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   40px;
+  --space-2xl:  64px;
+
+  /* Typography */
+  --font-body:    'Inter', -apple-system, sans-serif;
+  --font-heading: 'Inter', -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-sm:    8px;
+  --radius-md:    16px;
+  --radius-lg:    24px;
+  --radius-pill:  999px;
+
+  /* Shadows */
+  --shadow-card:  0 20px 60px rgba(0, 0, 0, 0.5);
+  --shadow-btn:   0 4px 20px rgba(108, 71, 255, 0.35);
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-base:   200ms ease;
+  --transition-slow:   300ms ease-out;
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--color-brand-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+.site-header {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app {
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md);
+  position: relative;
+}
+
+.site-footer {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   STEP SYSTEM
+   ========================================================= */
+.step {
+  animation: stepIn var(--transition-slow) both;
+}
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.step__title {
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 800;
+  text-align: center;
+  margin-bottom: var(--space-lg);
+  background: linear-gradient(135deg, #fff 40%, var(--color-brand-accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (min-width: 640px) {
+  .app { padding: var(--space-2xl) var(--space-xl); }
+}
+```
+
+---
+
+### 4.3 `styles/components.css`
+
+Implement **all** component styles here. Key components:
+
+**Header logo:** Large, bold, gradient text. Tagline in muted secondary color.
+
+**Upload Zone:**
+- Minimum height 220px, dashed border `2px dashed var(--color-border)`, border-radius `var(--radius-lg)`
+- On hover/focus: border-color → `var(--color-brand-accent)`, soft glow `box-shadow: 0 0 0 4px rgba(108,71,255,0.15)`
+- Transition: `var(--transition-base)` on border-color and box-shadow
+- Cursor: pointer
+- Drag-over state: add `.upload-zone--drag-over` class → filled background `rgba(108,71,255,0.08)`
+
+**Format Toggle:**
+- Two buttons side by side in a flex row
+- Active: background `var(--color-brand-accent)`, white text, `box-shadow: var(--shadow-btn)`
+- Inactive: `border: 2px solid var(--color-border)`, secondary text
+- Transition: all properties `var(--transition-base)`
+
+**Buttons:**
+```css
+/* Base */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm);
+       font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
+       border: none; border-radius: var(--radius-pill); transition: all var(--transition-fast);
+       text-decoration: none; white-space: nowrap; }
+
+/* Sizes */
+.btn--sm  { padding: 8px 16px;  font-size: 0.875rem; }
+.btn--lg  { padding: 16px 32px; font-size: 1.0625rem; width: 100%; }
+
+/* Variants */
+.btn--primary { background: var(--color-brand-accent); color: #fff; box-shadow: var(--shadow-btn); }
+.btn--primary:hover { background: var(--color-brand-accent-h); transform: scale(1.02); }
+.btn--primary:active { transform: scale(0.98); }
+
+.btn--x { background: var(--color-x-black); color: #fff; }
+.btn--x:hover { background: #1a1a1a; transform: scale(1.02); }
+
+.btn--ghost { background: transparent; color: var(--color-text-secondary);
+              border: 1px solid var(--color-border); }
+.btn--ghost:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+```
+
+**Fields (Format B):** Dark surface cards, rounded, label above input, input has accent focus ring.
+
+**Output preview:** Centered, max-width 360px, `border-radius: var(--radius-lg)`, `box-shadow: var(--shadow-card)`. Scale in on appearance.
+
+**Loading overlay:** Fixed full-screen dark overlay with centered spinner (CSS `@keyframes spin` on a `border-radius: 50%` div with a violet border segment).
+
+**Toast notifications:** Fixed bottom-center, auto-dismiss after 3s, slide up on appear.
+
+---
+
+### 4.4 `scripts/upload.js`
+
+```js
+// scripts/upload.js
+// Handles file selection, validation, HEIC conversion, and ImageBitmap creation.
+
+const ACCEPTED_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif']
+const MAX_SIZE_BYTES = 20 * 1024 * 1024  // 20 MB
+
+/**
+ * Validate a File object. Returns null if valid, or an error message string.
+ * @param {File} file
+ * @returns {string|null}
+ */
+export function validateFile(file) {
+  const isHeic = file.name.toLowerCase().endsWith('.heic') || file.name.toLowerCase().endsWith('.heif')
+  const typeOk = ACCEPTED_TYPES.includes(file.type) || isHeic
+  if (!typeOk) return 'Unsupported file type. Please use JPG, PNG, or HEIC.'
+  if (file.size > MAX_SIZE_BYTES) return 'File is too large. Maximum size is 20 MB.'
+  return null
+}
+
+/**
+ * Convert a File to an ImageBitmap, handling HEIC conversion via heic2any.
+ * @param {File} file
+ * @returns {Promise<ImageBitmap>}
+ */
+export async function fileToImageBitmap(file) {
+  let blob = file
+  const isHeic = file.type === 'image/heic' || file.type === 'image/heif'
+                 || file.name.toLowerCase().endsWith('.heic')
+                 || file.name.toLowerCase().endsWith('.heif')
+
+  if (isHeic) {
+    // heic2any is loaded globally via CDN script tag
+    blob = await heic2any({ blob: file, toType: 'image/png', quality: 0.92 })
+    if (Array.isArray(blob)) blob = blob[0]
   }
-  ```
-- BEM-like naming: `.card__photo`, `.card__title`, `.btn--primary`
-- Mobile-first media queries: `@media (min-width: 768px) { … }`
 
-### JavaScript
-- ES2020+ modules (`import / export`)
-- No frameworks (React, Vue, etc.) unless explicitly approved
-- Keep each module focused: `canvas.js` only does compositing; `upload.js` only does file handling
-- Use `async/await`; never raw `.then()` chains
-- Always handle errors with user-visible feedback (toast/alert)
-
----
-
-## Key Module Contracts
-
-### `canvas.js`
-```js
-// Exports:
-export async function compositeFrameA(imageBitmap): Promise<Blob>  // PFP overlay
-export async function compositeFrameB(imageBitmap, fields): Promise<Blob>  // ID card
-// fields = { name: string, stack: string, role: string, builderTitle: string }
-```
-
-### `upload.js`
-```js
-export async function handleUpload(file: File): Promise<ImageBitmap>
-// Converts HEIC→PNG if needed, then returns ImageBitmap
-```
-
-### `share.js`
-```js
-export function shareToX(imageBlob: Blob, text: string): void
-// Opens Twitter Intent URL with pre-filled text including #FrameInGoa
-export async function nativeShare(imageBlob: Blob, text: string): Promise<void>
-// Uses navigator.share() on mobile if available
+  return createImageBitmap(blob)
+}
 ```
 
 ---
 
-## Task Tracking
+### 4.5 `scripts/canvas.js`
 
-All pending, in-progress, and completed tasks are in [`tasks.md`](./tasks.md).  
-**Update `tasks.md` whenever you start or finish a task.**
+This is the most important file. All image compositing happens here.
+
+```js
+// scripts/canvas.js
+// Produces final PNG Blobs by compositing the user photo with brand assets.
+
+const FRAME_A_SIZE  = 1080          // square
+const CARD_W        = 1080
+const CARD_H        = 1350
+
+const BUILDER_TITLES = [
+  'Prompt Whisperer', 'Founding Hacker', 'Vibe Architect',
+  'Zero-to-One Enjoyer', 'Full-Stack Dreamer', 'Ship It or Skip It',
+  'Context Window Surfer', 'Recursive Thinker', 'Chaos Engineer',
+  'Async Adventurer', 'Serial Deployer', 'Edge Case Collector',
+  'Latency Whisperer', 'Rubber Duck Wrangler', 'Git Push Philosopher',
+]
+
+export function randomBuilderTitle() {
+  return BUILDER_TITLES[Math.floor(Math.random() * BUILDER_TITLES.length)]
+}
+
+/**
+ * Load an image from src. On error, draws a placeholder via fallbackFn.
+ */
+async function loadImage(src, fallbackFn) {
+  return new Promise((resolve) => {
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => resolve(img)
+    img.onerror = () => {
+      const c = Object.assign(document.createElement('canvas'), { width: 1080, height: 1080 })
+      fallbackFn(c.getContext('2d'), c)
+      const fi = new Image()
+      fi.onload = () => resolve(fi)
+      fi.src = c.toDataURL()
+    }
+    img.src = src
+  })
+}
+
+/**
+ * Draw user photo centered + cropped (CSS object-fit: cover behaviour).
+ */
+function drawCover(ctx, img, x, y, w, h) {
+  const imgRatio = img.width / img.height
+  const targetRatio = w / h
+  let sx, sy, sw, sh
+  if (imgRatio > targetRatio) {
+    sh = img.height; sw = sh * targetRatio
+    sx = (img.width - sw) / 2; sy = 0
+  } else {
+    sw = img.width; sh = sw / targetRatio
+    sx = 0; sy = (img.height - sh) / 2
+  }
+  ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h)
+}
+
+/** Draw rounded rect clip path */
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath()
+  ctx.roundRect(x, y, w, h, r)
+}
+
+// ─── FORMAT A ─────────────────────────────────────────────────────────────────
+
+function drawFrameAFallback(ctx, canvas) {
+  canvas.width = FRAME_A_SIZE; canvas.height = FRAME_A_SIZE
+  // Transparent center, violet border
+  ctx.clearRect(0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
+  // Border ring
+  const bw = 40
+  ctx.fillStyle = '#6C47FF'
+  // Top
+  ctx.fillRect(0, 0, FRAME_A_SIZE, bw)
+  // Bottom
+  ctx.fillRect(0, FRAME_A_SIZE - bw - 120, FRAME_A_SIZE, bw + 120)
+  // Left
+  ctx.fillRect(0, bw, bw, FRAME_A_SIZE - bw * 2 - 120)
+  // Right
+  ctx.fillRect(FRAME_A_SIZE - bw, bw, bw, FRAME_A_SIZE - bw * 2 - 120)
+  // Bottom text strip
+  ctx.fillStyle = '#6C47FF'
+  ctx.fillRect(0, FRAME_A_SIZE - 120, FRAME_A_SIZE, 120)
+  ctx.fillStyle = '#fff'
+  ctx.font = '700 48px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('HH GOA 2026', FRAME_A_SIZE / 2, FRAME_A_SIZE - 55)
+  ctx.font = '500 24px Inter, sans-serif'
+  ctx.textAlign = 'right'
+  ctx.fillText('#FrameInGoa', FRAME_A_SIZE - 24, FRAME_A_SIZE - 20)
+}
+
+/**
+ * @param {ImageBitmap} userPhoto
+ * @returns {Promise<Blob>}
+ */
+export async function compositeFrameA(userPhoto) {
+  const canvas = document.createElement('canvas')
+  canvas.width = FRAME_A_SIZE; canvas.height = FRAME_A_SIZE
+  const ctx = canvas.getContext('2d')
+
+  // 1. Draw user photo (cover-fit square)
+  drawCover(ctx, userPhoto, 0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
+
+  // 2. Draw frame overlay on top
+  const frame = await loadImage('assets/frame-a/overlay.png', drawFrameAFallback)
+  ctx.drawImage(frame, 0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
+
+  return new Promise((res) => canvas.toBlob(res, 'image/png'))
+}
+
+// ─── FORMAT B ─────────────────────────────────────────────────────────────────
+
+function drawCardBgFallback(ctx, canvas) {
+  canvas.width = CARD_W; canvas.height = CARD_H
+  // Dark gradient bg
+  const grad = ctx.createLinearGradient(0, 0, 0, CARD_H)
+  grad.addColorStop(0, '#0A0E1A'); grad.addColorStop(1, '#141824')
+  ctx.fillStyle = grad; ctx.fillRect(0, 0, CARD_W, CARD_H)
+  // Header bar
+  ctx.fillStyle = '#6C47FF'
+  ctx.fillRect(0, 0, CARD_W, 200)
+  ctx.fillStyle = '#fff'
+  ctx.font = '800 56px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('HH GOA 2026', CARD_W / 2, 90)
+  ctx.font = '600 32px Inter, sans-serif'
+  ctx.fillText('BUILDER PASS', CARD_W / 2, 148)
+  // Footer bar
+  ctx.fillStyle = '#6C47FF'
+  ctx.fillRect(0, CARD_H - 100, CARD_W, 100)
+  ctx.fillStyle = '#fff'
+  ctx.font = '500 28px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('GOA · AUGUST 2026  |  #HHGoa2026', CARD_W / 2, CARD_H - 38)
+}
+
+/**
+ * @param {ImageBitmap} userPhoto
+ * @param {{ name: string, stack: string, builderTitle: string }} fields
+ * @returns {Promise<Blob>}
+ */
+export async function compositeFrameB(userPhoto, fields) {
+  // Ensure fonts are loaded before drawing text on canvas
+  await Promise.all([
+    document.fonts.load('800 64px Inter'),
+    document.fonts.load('700 40px Inter'),
+    document.fonts.load('500 36px Inter'),
+  ])
+
+  const canvas = document.createElement('canvas')
+  canvas.width = CARD_W; canvas.height = CARD_H
+  const ctx = canvas.getContext('2d')
+
+  // 1. Background card
+  const bg = await loadImage('assets/frame-b/card-bg.png', drawCardBgFallback)
+  ctx.drawImage(bg, 0, 0, CARD_W, CARD_H)
+
+  // 2. User photo — left 42% of card, vertically centered in the middle zone
+  const photoX = 40, photoY = 240
+  const photoW = 400, photoH = 400
+  ctx.save()
+  roundedRect(ctx, photoX, photoY, photoW, photoH, 24)
+  ctx.clip()
+  drawCover(ctx, userPhoto, photoX, photoY, photoW, photoH)
+  ctx.restore()
+
+  // 3. Text — right side
+  const textX = 480
+  ctx.textAlign = 'left'
+
+  // Name
+  ctx.fillStyle = '#F5C518'  // gold
+  ctx.font = '800 56px Inter, sans-serif'
+  wrapText(ctx, fields.name || 'Your Name', textX, 310, 560, 68)
+
+  // Stack / role
+  ctx.fillStyle = '#F0F0F0'
+  ctx.font = '500 32px Inter, sans-serif'
+  wrapText(ctx, fields.stack || 'Builder', textX, 420, 560, 44)
+
+  // Divider line
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)'
+  ctx.lineWidth = 1
+  ctx.beginPath(); ctx.moveTo(textX, 490); ctx.lineTo(CARD_W - 40, 490); ctx.stroke()
+
+  // Builder title
+  ctx.fillStyle = '#6C47FF'
+  ctx.font = 'italic 700 36px Inter, sans-serif'
+  ctx.fillText('"' + (fields.builderTitle || 'Builder') + '"', textX, 545)
+
+  return new Promise((res) => canvas.toBlob(res, 'image/png'))
+}
+
+/**
+ * Simple text wrapping for canvas.
+ */
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ')
+  let line = ''
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word
+    if (ctx.measureText(test).width > maxWidth && line) {
+      ctx.fillText(line, x, y); y += lineHeight; line = word
+    } else { line = test }
+  }
+  ctx.fillText(line, x, y)
+}
+```
 
 ---
 
-## Design Decisions
+### 4.6 `scripts/share.js`
 
-Log every non-trivial technical decision in [`docs/decisions.md`](./docs/decisions.md) using the ADR format defined there. This prevents rehashing settled questions.
+```js
+// scripts/share.js
+
+const TWEET_TEXT = "I'm going to HH Goa 2026! 🚀 #FrameInGoa #HHGoa2026"
+const DOWNLOAD_FILENAME_A = 'HH-Goa-2026-frame.png'
+const DOWNLOAD_FILENAME_B = 'HH-Goa-2026-id-card.png'
+
+/**
+ * Trigger a PNG download.
+ * @param {Blob} blob
+ * @param {string} filename
+ */
+export function downloadImage(blob, filename) {
+  const url = URL.createObjectURL(blob)
+  const a = Object.assign(document.createElement('a'), {
+    href: url,
+    download: filename,
+  })
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+}
+
+/**
+ * Share to X. Uses Web Share API on mobile if supported (can share the file),
+ * falls back to Twitter Intent URL on desktop.
+ * @param {Blob} blob
+ * @param {'a'|'b'} format
+ */
+export async function shareToX(blob, format) {
+  const filename = format === 'a' ? DOWNLOAD_FILENAME_A : DOWNLOAD_FILENAME_B
+  const file = new File([blob], filename, { type: 'image/png' })
+
+  // Try native share with image (iOS 16+, Android Chrome)
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({ files: [file], text: TWEET_TEXT, title: 'HH Goa 2026' })
+      return
+    } catch (err) {
+      if (err.name !== 'AbortError') console.warn('Share failed, falling back', err)
+      else return  // user cancelled — do nothing
+    }
+  }
+
+  // Fallback: Twitter Intent URL (desktop)
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(TWEET_TEXT)}`
+  window.open(url, '_blank', 'noopener')
+}
+
+export { DOWNLOAD_FILENAME_A, DOWNLOAD_FILENAME_B }
+```
 
 ---
 
-## What NOT to Do
+### 4.7 `scripts/ui.js`
 
-- ❌ Do not add a server, database, or any persistent storage
-- ❌ Do not add authentication of any kind
-- ❌ Do not add Tailwind CSS or any CSS framework without explicit user approval
-- ❌ Do not add a React/Vue/Svelte framework without explicit user approval
-- ❌ Do not commit binary assets (fonts, PNGs) over 500 KB without approval
-- ❌ Do not modify files inside `project_brain/` — treat as read-only source-of-truth spec
-- ❌ Do not leave placeholder text (e.g. "Lorem ipsum") in any UI element
+```js
+// scripts/ui.js
+// DOM helpers, step navigation, toasts.
+
+/**
+ * Show a step by ID, hide all others.
+ * @param {'step-upload'|'step-config'|'step-output'} stepId
+ */
+export function showStep(stepId) {
+  document.querySelectorAll('.step').forEach((el) => {
+    const isTarget = el.id === stepId
+    el.hidden = !isTarget
+    el.classList.toggle('step--active', isTarget)
+  })
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+/**
+ * Show / hide the loading overlay.
+ */
+export function setLoading(visible) {
+  document.getElementById('loading-overlay').hidden = !visible
+}
+
+/**
+ * Show a toast notification that auto-dismisses.
+ * @param {string} message
+ * @param {'success'|'error'|'info'} type
+ */
+export function showToast(message, type = 'info') {
+  const existing = document.querySelector('.toast')
+  if (existing) existing.remove()
+
+  const toast = document.createElement('div')
+  toast.className = `toast toast--${type}`
+  toast.textContent = message
+  toast.setAttribute('role', 'status')
+  document.body.appendChild(toast)
+
+  requestAnimationFrame(() => toast.classList.add('toast--visible'))
+  setTimeout(() => {
+    toast.classList.remove('toast--visible')
+    setTimeout(() => toast.remove(), 300)
+  }, 3000)
+}
+
+/** Show an inline error under the upload zone */
+export function showUploadError(message) {
+  const el = document.getElementById('upload-error')
+  el.textContent = message
+  el.hidden = false
+}
+export function clearUploadError() {
+  const el = document.getElementById('upload-error')
+  el.textContent = ''
+  el.hidden = true
+}
+```
 
 ---
 
-## Submission Checklist
+### 4.8 `scripts/main.js`
 
-- [ ] Both Format A (PFP Frame) and Format B (Builder ID Card) work end-to-end
-- [ ] HEIC upload works (test with an iPhone photo)
-- [ ] Download produces a real PNG file
-- [ ] Share to X opens a pre-filled tweet with `#FrameInGoa`
-- [ ] Works on mobile (390 px wide, Chrome/Safari)
-- [ ] No login required before viewing result
-- [ ] Deployed to a live public URL
-- [ ] URL submitted to: https://forms.gle/jM5hTaGvsrfEfixPA by **11:59 PM, 13 Aug 2026**
+```js
+// scripts/main.js
+// App bootstrap. Wires all modules together.
+
+import { validateFile, fileToImageBitmap } from './upload.js'
+import { compositeFrameA, compositeFrameB, randomBuilderTitle } from './canvas.js'
+import { downloadImage, shareToX, DOWNLOAD_FILENAME_A, DOWNLOAD_FILENAME_B } from './share.js'
+import { showStep, setLoading, showToast, showUploadError, clearUploadError } from './ui.js'
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentImageBitmap = null
+let currentBlob = null
+let currentFormat = 'a'  // 'a' | 'b'
+let currentBuilderTitle = randomBuilderTitle()
+
+// ─── DOM REFS ─────────────────────────────────────────────────────────────────
+const uploadZone       = document.getElementById('upload-zone')
+const fileInput        = document.getElementById('file-input')
+const photoPreview     = document.getElementById('photo-preview')
+const btnChangePhoto   = document.getElementById('btn-change-photo')
+const btnFormatA       = document.getElementById('btn-format-a')
+const btnFormatB       = document.getElementById('btn-format-b')
+const fieldsB          = document.getElementById('fields-b')
+const inputName        = document.getElementById('input-name')
+const inputStack       = document.getElementById('input-stack')
+const builderTitleDisp = document.getElementById('builder-title-display')
+const btnReroll        = document.getElementById('btn-reroll')
+const btnGenerate      = document.getElementById('btn-generate')
+const outputPreview    = document.getElementById('output-preview')
+const btnDownload      = document.getElementById('btn-download')
+const btnShareX        = document.getElementById('btn-share-x')
+const btnStartOver     = document.getElementById('btn-start-over')
+
+// ─── UPLOAD HANDLING ──────────────────────────────────────────────────────────
+async function handleFile(file) {
+  clearUploadError()
+  const err = validateFile(file)
+  if (err) { showUploadError(err); return }
+
+  setLoading(true)
+  try {
+    currentImageBitmap = await fileToImageBitmap(file)
+    // Show photo preview
+    const offscreen = new OffscreenCanvas(currentImageBitmap.width, currentImageBitmap.height)
+    const ctx = offscreen.getContext('2d')
+    ctx.drawImage(currentImageBitmap, 0, 0)
+    const previewBlob = await offscreen.convertToBlob({ type: 'image/jpeg', quality: 0.8 })
+    photoPreview.src = URL.createObjectURL(previewBlob)
+    showStep('step-config')
+  } catch (e) {
+    showUploadError('Could not process your photo. Please try a different file.')
+    console.error(e)
+  } finally {
+    setLoading(false)
+  }
+}
+
+uploadZone.addEventListener('click', () => fileInput.click())
+uploadZone.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') fileInput.click() })
+
+fileInput.addEventListener('change', (e) => {
+  if (e.target.files[0]) handleFile(e.target.files[0])
+})
+
+// Drag and drop
+uploadZone.addEventListener('dragover', (e) => { e.preventDefault(); uploadZone.classList.add('upload-zone--drag-over') })
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('upload-zone--drag-over'))
+uploadZone.addEventListener('drop', (e) => {
+  e.preventDefault()
+  uploadZone.classList.remove('upload-zone--drag-over')
+  if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0])
+})
+
+// ─── FORMAT TOGGLE ────────────────────────────────────────────────────────────
+function setFormat(fmt) {
+  currentFormat = fmt
+  btnFormatA.classList.toggle('format-toggle__btn--active', fmt === 'a')
+  btnFormatB.classList.toggle('format-toggle__btn--active', fmt === 'b')
+  fieldsB.hidden = fmt !== 'b'
+}
+
+btnFormatA.addEventListener('click', () => setFormat('a'))
+btnFormatB.addEventListener('click', () => setFormat('b'))
+
+// ─── BUILDER TITLE RE-ROLL ────────────────────────────────────────────────────
+btnReroll.addEventListener('click', () => {
+  currentBuilderTitle = randomBuilderTitle()
+  builderTitleDisp.textContent = currentBuilderTitle
+})
+
+// ─── GENERATE ─────────────────────────────────────────────────────────────────
+btnGenerate.addEventListener('click', async () => {
+  if (!currentImageBitmap) return
+  setLoading(true)
+  try {
+    if (currentFormat === 'a') {
+      currentBlob = await compositeFrameA(currentImageBitmap)
+    } else {
+      currentBlob = await compositeFrameB(currentImageBitmap, {
+        name: inputName.value.trim(),
+        stack: inputStack.value.trim(),
+        builderTitle: currentBuilderTitle,
+      })
+    }
+    outputPreview.src = URL.createObjectURL(currentBlob)
+    showStep('step-output')
+  } catch (e) {
+    showToast('Generation failed. Please try again.', 'error')
+    console.error(e)
+  } finally {
+    setLoading(false)
+  }
+})
+
+// ─── DOWNLOAD ─────────────────────────────────────────────────────────────────
+btnDownload.addEventListener('click', () => {
+  if (!currentBlob) return
+  const filename = currentFormat === 'a' ? DOWNLOAD_FILENAME_A : DOWNLOAD_FILENAME_B
+  downloadImage(currentBlob, filename)
+  showToast('Downloading your graphic! 🎉', 'success')
+})
+
+// ─── SHARE TO X ───────────────────────────────────────────────────────────────
+btnShareX.addEventListener('click', async () => {
+  if (!currentBlob) return
+  try {
+    await shareToX(currentBlob, currentFormat)
+  } catch (e) {
+    showToast('Could not share. Try downloading and posting manually.', 'error')
+  }
+})
+
+// ─── NAVIGATION ───────────────────────────────────────────────────────────────
+btnChangePhoto.addEventListener('click', () => {
+  fileInput.value = ''
+  showStep('step-upload')
+})
+
+btnStartOver.addEventListener('click', () => {
+  currentImageBitmap = null
+  currentBlob = null
+  currentFormat = 'a'
+  fileInput.value = ''
+  inputName.value = ''
+  inputStack.value = ''
+  currentBuilderTitle = randomBuilderTitle()
+  builderTitleDisp.textContent = currentBuilderTitle
+  setFormat('a')
+  showStep('step-upload')
+})
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+showStep('step-upload')
+builderTitleDisp.textContent = currentBuilderTitle
+```
+
+---
+
+### 4.9 `vercel.json`
+
+```json
+{
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## 5. Static OG Image
+
+Generate `assets/og-image.png` (1200×630 px) using a canvas script or by hand. It should:
+- Have the dark brand background
+- Say "HH GOA 2026" in large white/gold text
+- Say "Get your builder frame · #FrameInGoa" in subtitle
+- Use the brand accent violet for accents
+
+This image is served statically and referenced in the `<head>` OG meta tags.
+
+---
+
+## 6. Quality Checklist Before Committing
+
+For every PR / commit, verify:
+
+- [ ] `upload.js`: JPG, PNG, HEIC all convert to ImageBitmap without error
+- [ ] `canvas.js`: Format A produces a 1080×1080 PNG Blob
+- [ ] `canvas.js`: Format B produces a 1080×1350 PNG Blob with name/stack/title text visible
+- [ ] `share.js`: Download saves a real PNG file to the device
+- [ ] `share.js`: Share to X opens a tweet with `#FrameInGoa` in the text
+- [ ] Full flow works at 390 px wide (mobile viewport)
+- [ ] No console errors on Chrome or Safari
+- [ ] Loading overlay appears during compositing and hides on completion
+- [ ] "Start over" resets all state cleanly
+
+---
+
+## 7. Updating `tasks.md`
+
+After completing each group of tasks, update [`tasks.md`](./tasks.md):
+- `[ ]` → `[/]` when you start a task
+- `[/]` → `[x]` when you finish it
+- If a new task arises, add it to the appropriate Phase section
+
+---
+
+## 8. What NOT to Do
+
+- ❌ No backend, server, or serverless functions (except possibly for OG image — see ADR-007)
+- ❌ No React, Vue, Svelte, Angular, or any component framework
+- ❌ No Tailwind CSS or Bootstrap
+- ❌ No changes to files inside `project_brain/`
+- ❌ No placeholder text visible in the UI (no "Lorem ipsum")
+- ❌ Do not create files outside the structure defined in §2
+- ❌ Do not remove or overwrite existing `docs/` files unless instructed
+
+---
+
+## 9. Submission
+
+Once deployed to Vercel:
+1. Copy the live URL
+2. Update `README.md` → Live Demo section with the URL
+3. Submit at: **https://forms.gle/jM5hTaGvsrfEfixPA**
+4. Deadline: **11:59 PM, 13 August 2026**
