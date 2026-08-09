@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HH Goa 2026 — Frame Generator</title>
+  <meta name="description" content="Generate your branded HH Goa 2026 graphic. Upload your photo, download your frame, share on X. #FrameInGoa">
+
+  <!-- OG / Twitter Card -->
+  <meta property="og:title" content="HH Goa 2026 — Frame Generator">
+  <meta property="og:description" content="Get your HH Goa 2026 builder frame. Upload, generate, share. #FrameInGoa">
+  <meta property="og:image" content="assets/og-image.png">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="assets/og-image.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/components.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="site-header">
+    <div class="header__logo">HH GOA 2026</div>
+    <p class="header__tagline">Get your builder frame. Share on X.</p>
+  </header>
+
+  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
+
+  <!-- MAIN APP -->
+  <main class="app" id="app">
+
+    <!-- STEP 1: Upload -->
+    <section class="step step--active" id="step-upload" aria-label="Step 1: Upload photo">
+      <h1 class="step__title">Drop your photo</h1>
+      <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload photo">
+        <div class="upload-zone__icon">↑</div>
+        <p class="upload-zone__text">Tap to upload or drag your photo here</p>
+        <p class="upload-zone__hint">JPG, PNG, HEIC · Max 20 MB</p>
+        <input type="file" id="file-input" accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif" hidden>
+      </div>
+      <p class="upload-zone__error" id="upload-error" role="alert" hidden></p>
+    </section>
+
+    <!-- STEP 2: Format + Fields -->
+    <section class="step" id="step-config" aria-label="Step 2: Choose format" hidden>
+
+      <!-- Photo preview -->
+      <div class="photo-preview" id="photo-preview-container">
+        <img id="photo-preview" alt="Your uploaded photo" class="photo-preview__img">
+        <button class="btn btn--ghost btn--sm" id="btn-change-photo">Change photo</button>
+      </div>
+
+      <!-- Format toggle -->
+      <div class="format-toggle" id="format-toggle" role="group" aria-label="Choose format">
+        <button class="format-toggle__btn format-toggle__btn--active" id="btn-format-a" data-format="a">
+          <span class="format-toggle__label">PFP Frame</span>
+          <span class="format-toggle__desc">Wraps your photo for X profile</span>
+        </button>
+        <button class="format-toggle__btn" id="btn-format-b" data-format="b">
+          <span class="format-toggle__label">Builder ID Card</span>
+          <span class="format-toggle__desc">Event badge with your details</span>
+        </button>
+      </div>
+
+      <!-- Format B fields (shown only when B is selected) -->
+      <div class="fields" id="fields-b" hidden>
+        <label class="field" for="input-name">
+          <span class="field__label">Your Name</span>
+          <input class="field__input" id="input-name" type="text" placeholder="Akshat Srivastava" maxlength="40" autocomplete="name">
+        </label>
+        <label class="field" for="input-stack">
+          <span class="field__label">Stack / Role</span>
+          <input class="field__input" id="input-stack" type="text" placeholder="Full-Stack · Builder · Founder" maxlength="60">
+        </label>
+        <div class="field field--title">
+          <span class="field__label">Your Builder Title</span>
+          <div class="builder-title">
+            <span class="builder-title__text" id="builder-title-display">Prompt Whisperer</span>
+            <button class="btn btn--ghost btn--sm" id="btn-reroll" aria-label="Generate new builder title">🎲 Re-roll</button>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn--primary btn--lg" id="btn-generate">Generate My Graphic ✨</button>
+    </section>
+
+    <!-- STEP 3: Output -->
+    <section class="step" id="step-output" aria-label="Step 3: Your graphic" hidden>
+      <h2 class="step__title">Here's your graphic! 🚀</h2>
+      <div class="output-preview" id="output-preview-container">
+        <img id="output-preview" alt="Your HH Goa 2026 graphic" class="output-preview__img">
+      </div>
+      <div class="output-actions">
+        <button class="btn btn--primary btn--lg" id="btn-download">⬇ Download PNG</button>
+        <button class="btn btn--x btn--lg" id="btn-share-x">𝕏 Share on X</button>
+      </div>
+      <button class="btn btn--ghost btn--sm" id="btn-start-over">Start over</button>
+    </section>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loading-overlay" hidden aria-live="polite">
+      <div class="loading-overlay__spinner"></div>
+      <p class="loading-overlay__text">Generating your graphic…</p>
+    </div>
+
+  </main>
+
+  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <p>HH Goa 2026 · <a href="https://forms.gle/jM5hTaGvsrfEfixPA" target="_blank" rel="noopener">Submit your entry</a></p>
+  </footer>
+
+  <!-- heic2any CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/heic2any@0.0.4/dist/heic2any.min.js"></script>
+  <!-- ADR-010: detect CDN load failure before any upload attempt -->
+  <script>window.__heic2anyLoaded = typeof heic2any !== 'undefined'</script>
+
+  <!-- App entry point -->
+  <script type="module" src="scripts/main.js"></script>
+</body>
+</html>

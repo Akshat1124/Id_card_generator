@@ -22,67 +22,67 @@
 
 ## Phase 1 — Foundation & Design System
 
-- [ ] Create `index.html` skeleton with semantic structure
-  - [ ] Header with HH Goa 2026 logo/wordmark
-  - [ ] Step-wizard layout (Upload → Choose Format → Fill Fields → Preview → Share)
-  - [ ] Footer with submission credit
-- [ ] Create `styles/main.css`
-  - [ ] Define CSS custom properties (colors, fonts, spacing, radii)
-  - [ ] CSS reset / base styles
-  - [ ] Typography (Google Fonts: Inter or similar)
-  - [ ] Mobile-first grid/layout utilities
-- [ ] Create `styles/components.css`
-  - [ ] Upload zone (drag-and-drop + tap to select)
-  - [ ] Format toggle (A / B selector)
-  - [ ] Form fields (name, stack, role)
-  - [ ] Preview card
-  - [ ] Button styles (Download, Share to X)
-  - [ ] Toast notifications
-- [ ] Source / create brand assets
-  - [ ] HH Goa 2026 logo (SVG preferred)
-  - [ ] Format A frame overlay PNG (1080×1080, transparent center)
-  - [ ] Format B ID card background template PNG (1080×1350)
-  - [ ] Choose accent color palette
+- [x] Create `index.html` skeleton with semantic structure
+  - [x] Header with HH Goa 2026 logo/wordmark
+  - [x] Step-wizard layout (Upload → Choose Format → Fill Fields → Preview → Share)
+  - [x] Footer with submission credit
+- [x] Create `styles/main.css`
+  - [x] Define CSS custom properties (colors, fonts, spacing, radii)
+  - [x] CSS reset / base styles
+  - [x] Typography (Google Fonts: Inter or similar)
+  - [x] Mobile-first grid/layout utilities
+- [x] Create `styles/components.css`
+  - [x] Upload zone (drag-and-drop + tap to select)
+  - [x] Format toggle (A / B selector)
+  - [x] Form fields (name, stack, role)
+  - [x] Preview card
+  - [x] Button styles (Download, Share to X)
+  - [x] Toast notifications
+- [x] Source / create brand assets
+  - [x] HH Goa 2026 logo (SVG preferred)
+  - [x] Format A frame overlay PNG (1080×1080, transparent center)
+  - [x] Format B ID card background template PNG (1080×1350)
+  - [x] Choose accent color palette
 
 ---
 
 ## Phase 2 — Core Logic
 
-- [ ] **`scripts/upload.js`** — File handling
-  - [ ] Accept JPG, PNG, HEIC via `<input type="file">`
-  - [ ] Drag-and-drop support
-  - [ ] Validate file type and size (< 20 MB)
-  - [ ] Integrate `heic2any` library for HEIC → PNG conversion
-  - [ ] Return `ImageBitmap` for compositing
-  - [ ] Show immediate photo preview to user
+- [x] **`scripts/upload.js`** — File handling
+  - [x] Accept JPG, PNG, HEIC via `<input type="file">`
+  - [x] Drag-and-drop support
+  - [x] Validate file type and size (< 20 MB)
+  - [x] Integrate `heic2any` library for HEIC → PNG conversion
+  - [x] Return `ImageBitmap` for compositing
+  - [x] Show immediate photo preview to user
 
-- [ ] **`scripts/canvas.js`** — Image compositing
-  - [ ] `compositeFrameA(imageBitmap)` → `Promise<Blob>`
-    - [ ] Center-crop uploaded photo to 1080×1080
-    - [ ] Draw frame overlay on top
-  - [ ] `compositeFrameB(imageBitmap, fields)` → `Promise<Blob>`
-    - [ ] Position and crop photo within card template
-    - [ ] Render name, stack/role, builder title as text on canvas
-    - [ ] Apply font styling consistent with brand
-  - [ ] Builder Title generator (random array of fun titles)
-  - [ ] "Re-roll title" logic
+- [x] **`scripts/canvas.js`** — Image compositing
+  - [x] `compositeFrameA(imageBitmap)` → `Promise<Blob>`
+    - [x] Center-crop uploaded photo to 1080×1080
+    - [x] Draw frame overlay on top
+  - [x] `compositeFrameB(imageBitmap, fields)` → `Promise<Blob>`
+    - [x] Position and crop photo within card template
+    - [x] Render name, stack/role, builder title as text on canvas
+    - [x] Apply font styling consistent with brand
+  - [x] Builder Title generator (random array of fun titles)
+  - [x] "Re-roll title" logic
 
-- [ ] **`scripts/share.js`** — Sharing
-  - [ ] `shareToX(blob, text)` — opens Twitter Intent URL
-    - [ ] Pre-filled text includes `#FrameInGoa #HHGoa2026`
-  - [ ] `nativeShare(blob, text)` — uses `navigator.share()` on mobile
-  - [ ] Graceful fallback: if Web Share API not available, use Twitter Intent
+- [x] **`scripts/share.js`** — Sharing
+  - [x] `shareToX(blob, text)` — opens Twitter Intent URL
+    - [x] Pre-filled text includes `#FrameInGoa #HHGoa2026`
+  - [x] `nativeShare(blob, text)` — uses `navigator.share()` on mobile
+  - [x] Graceful fallback: if Web Share API not available, use Twitter Intent
 
-- [ ] **`scripts/ui.js`** — UI orchestration
-  - [ ] Step-wizard state machine (steps 1 → 4)
-  - [ ] Enable/disable buttons based on state
-  - [ ] Show/hide Format B fields based on selection
-  - [ ] Display toast messages for errors
+- [x] **`scripts/ui.js`** — UI orchestration
+  - [x] Step-wizard state machine (steps 1 → 4)
+  - [x] Enable/disable buttons based on state
+  - [x] Show/hide Format B fields based on selection
+  - [x] Display toast messages for errors
 
-- [ ] **`scripts/main.js`** — Bootstrap
-  - [ ] Import all modules
-  - [ ] Wire up event listeners
-  - [ ] Handle the full user journey end-to-end
+- [x] **`scripts/main.js`** — Bootstrap
+  - [x] Import all modules
+  - [x] Wire up event listeners
+  - [x] Handle the full user journey end-to-end
 
 ---
 
@@ -103,7 +103,8 @@
 
 ## Phase 4 — Share & OG Image
 
-- [ ] Finalize Twitter Intent URL with correct parameters
+- [x] Finalize Twitter Intent URL with correct parameters
+- [x] Improve desktop share fallback: try Web Share API on all platforms; copy PNG to clipboard + guidance toast when falling back to Intent (Twitter Intent can't auto-attach images)
 - [ ] Decide OG image strategy (see `docs/decisions.md` Q5)
   - [ ] **Option A:** Static pre-generated OG image (simple, no server)
   - [ ] **Option B:** Dynamic OG route (requires a small Vercel/Netlify function)

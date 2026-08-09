@@ -1,0 +1,140 @@
+/* =========================================================
+   DESIGN TOKENS  (v2.0 — confirmed from hhgoa.com screenshots)
+   ========================================================= */
+:root {
+  /* Brand */
+  --color-brand-primary:   #1C5E2A;   /* forest green — main bg */
+  --color-brand-accent:    #F0E040;   /* bright yellow — main accent */
+  --color-brand-accent-h:  #F5E860;   /* yellow hover state */
+  --color-brand-gold:      #F0E040;   /* same as accent */
+  --color-brand-pink:      #E91E8C;   /* hot pink — decorative only */
+
+  /* Surfaces */
+  --color-bg:              #1C5E2A;   /* forest green */
+  --color-surface:         #174F23;   /* slightly darker green */
+  --color-surface-raised:  #1E6B2F;   /* elevated panels */
+  --color-border:          rgba(255, 255, 255, 0.15);
+
+  /* Text */
+  --color-text-primary:    #FFFFFF;
+  --color-text-secondary:  rgba(255, 255, 255, 0.7);
+  --color-text-accent:     #F0E040;   /* yellow */
+
+  /* Semantic */
+  --color-success:         #1A7A3A;   /* dark green (harmonizes) */
+  --color-error:           #CC3333;
+  --color-x-black:         #000000;   /* X/Twitter brand color */
+
+  /* Button text — dark on yellow */
+  --color-btn-text:        #0A0A0A;
+
+  /* Cross divider rows */
+  --color-cross-divider:   #D4C830;   /* slightly muted yellow */
+
+  /* Spacing */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   40px;
+  --space-2xl:  64px;
+
+  /* Typography */
+  --font-body:    'Inter', -apple-system, sans-serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
+
+  /* Radii — sharp corners, no pills */
+  --radius-sm:   4px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-pill: 4px;   /* override — no pill shapes in this brand */
+
+  /* Shadows */
+  --shadow-card:  0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-btn:   0 4px 14px rgba(0, 0, 0, 0.4);
+
+  /* Transitions */
+  --transition-fast:   150ms ease;
+  --transition-base:   200ms ease;
+  --transition-slow:   300ms ease-out;
+}
+
+/* =========================================================
+   RESET & BASE
+   ========================================================= */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+[hidden] { display: none !important; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { max-width: 100%; display: block; }
+
+a { color: var(--color-brand-accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+.site-header {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.app {
+  flex: 1;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-xl) var(--space-md);
+  position: relative;
+}
+
+.site-footer {
+  padding: var(--space-lg) var(--space-md);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  border-top: 1px solid var(--color-border);
+}
+
+/* =========================================================
+   STEP SYSTEM
+   ========================================================= */
+.step {
+  animation: stepIn var(--transition-slow) both;
+}
+
+@keyframes stepIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.step__title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+  color: var(--color-brand-accent);   /* solid yellow — no gradient */
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+@media (min-width: 640px) {
+  .app { padding: var(--space-2xl) var(--space-xl); }
+}

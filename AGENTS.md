@@ -77,16 +77,16 @@ Generate both placeholder PNGs using a **one-time canvas script** (`scripts/gene
 
 **Placeholder Frame A (overlay.png):**
 - 1080×1080 transparent PNG
-- 20px border of `#6C47FF` (violet) with rounded corners (80px radius)
-- Bottom strip (height 120px): `#6C47FF` background, white text "HH GOA 2026" centered, 48px Inter 700
-- Small "#FrameInGoa" text at bottom right in white, 24px
+- 40px border ring of `#F0E040` (bright yellow)
+- Bottom strip (height 120px): `#F0E040` background, dark `#0A0A0A` text "HH GOA 2026" centered, 48px Inter 700
+- Small "#FrameInGoa" text at bottom right in dark `#0A0A0A`, 24px
 
 **Placeholder Card Background (card-bg.png):**
 - 1080×1350 px
-- Dark gradient background: `#0A0E1A` → `#141824`
-- Header zone (top 200px): `#6C47FF` bar, "HH GOA 2026 · BUILDER PASS" in white Inter 800 56px centered
+- Forest green gradient background: `#1C5E2A` → `#174F23`
+- Header zone (top 200px): `#F0E040` bar, "HH GOA 2026" + "BUILDER PASS" in dark `#0A0A0A` Inter 800 56px centered
 - Photo zone outline: dashed white rectangle at left 40% × center vertical
-- Footer zone (bottom 100px): `#6C47FF` bar, "GOA · AUGUST 2026  |  #HHGoa2026" centered white 28px
+- Footer zone (bottom 100px): `#F0E040` bar, "GOA · AUGUST 2026  |  #HHGoa2026" centered dark `#0A0A0A` 28px
 
 ### Runtime Fallback Pattern
 
@@ -148,7 +148,7 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles/main.css">
@@ -161,6 +161,8 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
     <div class="header__logo">HH GOA 2026</div>
     <p class="header__tagline">Get your builder frame. Share on X.</p>
   </header>
+
+  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
 
   <!-- MAIN APP -->
   <main class="app" id="app">
@@ -241,6 +243,8 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
 
   </main>
 
+  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
+
   <!-- FOOTER -->
   <footer class="site-footer">
     <p>HH Goa 2026 · <a href="https://forms.gle/jM5hTaGvsrfEfixPA" target="_blank" rel="noopener">Submit your entry</a></p>
@@ -269,26 +273,33 @@ Define all CSS custom properties here. No component-specific rules (those go in 
    ========================================================= */
 :root {
   /* Brand */
-  --color-brand-primary:   #0A0E1A;
-  --color-brand-accent:    #6C47FF;
-  --color-brand-accent-h:  #8266FF;   /* hover: 10% lighter */
-  --color-brand-gold:      #F5C518;
+  --color-brand-primary:   #1C5E2A;   /* forest green — main bg */
+  --color-brand-accent:    #F0E040;   /* bright yellow — main accent */
+  --color-brand-accent-h:  #F5E860;   /* yellow hover state */
+  --color-brand-gold:      #F0E040;   /* same as accent */
+  --color-brand-pink:      #E91E8C;   /* hot pink — decorative only */
 
   /* Surfaces */
-  --color-bg:              #0A0E1A;
-  --color-surface:         #141824;
-  --color-surface-raised:  #1E2433;
-  --color-border:          rgba(255, 255, 255, 0.09);
+  --color-bg:              #1C5E2A;   /* forest green */
+  --color-surface:         #174F23;   /* slightly darker green */
+  --color-surface-raised:  #1E6B2F;   /* elevated panels */
+  --color-border:          rgba(255, 255, 255, 0.15);
 
   /* Text */
-  --color-text-primary:    #F0F0F0;
-  --color-text-secondary:  #8A8FA8;
-  --color-text-accent:     #6C47FF;
+  --color-text-primary:    #FFFFFF;
+  --color-text-secondary:  rgba(255, 255, 255, 0.7);
+  --color-text-accent:     #F0E040;   /* yellow */
 
   /* Semantic */
-  --color-success:         #22C55E;
-  --color-error:           #EF4444;
+  --color-success:         #1A7A3A;   /* dark green (harmonizes) */
+  --color-error:           #CC3333;
   --color-x-black:         #000000;   /* X/Twitter brand color */
+
+  /* Button text — dark on yellow */
+  --color-btn-text:        #0A0A0A;
+
+  /* Cross divider rows */
+  --color-cross-divider:   #D4C830;   /* slightly muted yellow */
 
   /* Spacing */
   --space-xs:   4px;
@@ -300,17 +311,17 @@ Define all CSS custom properties here. No component-specific rules (those go in 
 
   /* Typography */
   --font-body:    'Inter', -apple-system, sans-serif;
-  --font-heading: 'Inter', -apple-system, sans-serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
 
-  /* Radii */
-  --radius-sm:    8px;
-  --radius-md:    16px;
-  --radius-lg:    24px;
-  --radius-pill:  999px;
+  /* Radii — sharp corners, no pills */
+  --radius-sm:   4px;
+  --radius-md:   4px;
+  --radius-lg:   8px;
+  --radius-pill: 4px;   /* override — no pill shapes in this brand */
 
   /* Shadows */
-  --shadow-card:  0 20px 60px rgba(0, 0, 0, 0.5);
-  --shadow-btn:   0 4px 20px rgba(108, 71, 255, 0.35);
+  --shadow-card:  0 8px 30px rgba(0, 0, 0, 0.4);
+  --shadow-btn:   0 4px 14px rgba(0, 0, 0, 0.4);
 
   /* Transitions */
   --transition-fast:   150ms ease;
@@ -380,14 +391,13 @@ a:hover { text-decoration: underline; }
 }
 
 .step__title {
+  font-family: var(--font-heading);
   font-size: clamp(1.5rem, 5vw, 2.25rem);
   font-weight: 800;
   text-align: center;
+  text-transform: uppercase;
   margin-bottom: var(--space-lg);
-  background: linear-gradient(135deg, #fff 40%, var(--color-brand-accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-brand-accent);   /* solid yellow — no gradient */
 }
 
 /* =========================================================
@@ -404,27 +414,44 @@ a:hover { text-decoration: underline; }
 
 Implement **all** component styles here. Key components:
 
-**Header logo:** Large, bold, gradient text. Tagline in muted secondary color.
+**Header logo:** `var(--font-heading)` (Playfair Display), yellow `var(--color-brand-accent)`, uppercase. NO gradient clip-text. Tagline in muted secondary color.
+
+**Cross divider:** rows of `×` as section separators:
+```css
+.cross-divider {
+  color: var(--color-cross-divider);
+  font-size: 0.875rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  padding: var(--space-sm) 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0.7;
+  user-select: none;
+}
+```
 
 **Upload Zone:**
-- Minimum height 220px, dashed border `2px dashed var(--color-border)`, border-radius `var(--radius-lg)`
-- On hover/focus: border-color → `var(--color-brand-accent)`, soft glow `box-shadow: 0 0 0 4px rgba(108,71,255,0.15)`
+- Minimum height 220px, dashed border `1.5px dashed rgba(255,255,255,0.25)`, background `rgba(0,0,0,0.15)`, border-radius `var(--radius-md)`
+- On hover/focus: border-color → `var(--color-brand-accent)`, soft glow `box-shadow: 0 0 0 4px rgba(240,224,64,0.15)`
 - Transition: `var(--transition-base)` on border-color and box-shadow
 - Cursor: pointer
-- Drag-over state: add `.upload-zone--drag-over` class → filled background `rgba(108,71,255,0.08)`
+- Drag-over state: add `.upload-zone--drag-over` class → filled background `rgba(240,224,64,0.08)`
 
 **Format Toggle:**
-- Two buttons side by side in a flex row
-- Active: background `var(--color-brand-accent)`, white text, `box-shadow: var(--shadow-btn)`
-- Inactive: `border: 2px solid var(--color-border)`, secondary text
+- Two buttons side by side in a flex row, border-radius `var(--radius-md)` (4px)
+- Active: background `var(--color-brand-accent)`, text `var(--color-btn-text)` (`#0A0A0A`), `box-shadow: var(--shadow-btn)`
+- Inactive: `border: 1.5px solid rgba(255,255,255,0.2)`, background `rgba(0,0,0,0.2)`, secondary text
+- Labels: UPPERCASE, `letter-spacing: 0.05em`
 - Transition: all properties `var(--transition-base)`
 
 **Buttons:**
 ```css
 /* Base */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--space-sm);
-       font-family: inherit; font-size: 1rem; font-weight: 600; cursor: pointer;
-       border: none; border-radius: var(--radius-pill); transition: all var(--transition-fast);
+       font-family: inherit; font-size: 1rem; font-weight: 700; cursor: pointer;
+       border: none; border-radius: var(--radius-pill); /* 4px — sharp, no pill */
+       transition: all var(--transition-fast);
        text-decoration: none; white-space: nowrap; }
 
 /* Sizes */
@@ -432,25 +459,29 @@ Implement **all** component styles here. Key components:
 .btn--lg  { padding: 16px 32px; font-size: 1.0625rem; width: 100%; }
 
 /* Variants */
-.btn--primary { background: var(--color-brand-accent); color: #fff; box-shadow: var(--shadow-btn); }
-.btn--primary:hover { background: var(--color-brand-accent-h); transform: scale(1.02); }
-.btn--primary:active { transform: scale(0.98); }
+.btn--primary { background: var(--color-brand-accent); color: var(--color-btn-text);
+                border: 2px dashed rgba(0, 0, 0, 0.4);   /* signature dashed border */
+                text-transform: uppercase; letter-spacing: 0.06em; box-shadow: var(--shadow-btn); }
+.btn--primary:hover { background: var(--color-brand-accent-h); transform: translateY(-2px); }
+.btn--primary:active { transform: translateY(0); }
 
-.btn--x { background: var(--color-x-black); color: #fff; }
-.btn--x:hover { background: #1a1a1a; transform: scale(1.02); }
+.btn--x { background: var(--color-x-black); color: #fff;
+          border: 2px dashed rgba(255, 255, 255, 0.2);
+          text-transform: uppercase; letter-spacing: 0.06em; }
+.btn--x:hover { background: #1a1a1a; transform: translateY(-2px); }
 
-.btn--ghost { background: transparent; color: var(--color-text-secondary);
-              border: 1px solid var(--color-border); }
-.btn--ghost:hover { border-color: var(--color-text-secondary); color: var(--color-text-primary); }
+.btn--ghost { background: transparent; color: rgba(255, 255, 255, 0.7);
+              border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: var(--radius-md); }
+.btn--ghost:hover { border-color: var(--color-brand-accent); color: var(--color-brand-accent); }
 ```
 
-**Fields (Format B):** Dark surface cards, rounded, label above input, input has accent focus ring.
+**Fields (Format B):** Dark panels `rgba(0,0,0,0.25)`, label above input (UPPERCASE, tracked), input border `1.5px solid rgba(255,255,255,0.2)`, yellow focus ring `0 0 0 3px rgba(240,224,64,0.2)`.
 
 **Output preview:** Centered, max-width 360px, `border-radius: var(--radius-lg)`, `box-shadow: var(--shadow-card)`. Scale in on appearance.
 
-**Loading overlay:** Fixed full-screen dark overlay with centered spinner (CSS `@keyframes spin` on a `border-radius: 50%` div with a violet border segment).
+**Loading overlay:** Fixed full-screen overlay, background `rgba(15,50,20,0.95)` (green-tinted), with centered spinner (CSS `@keyframes spin` on a `border-radius: 50%` div) whose top color segment is `var(--color-brand-accent)` (yellow).
 
-**Toast notifications:** Fixed bottom-center, auto-dismiss after 3s, slide up on appear.
+**Toast notifications:** Fixed bottom-center, auto-dismiss after 3s, slide up on appear, `border-radius: var(--radius-md)`. Success `#1A7A3A`, error `#CC3333`, info `rgba(0,0,0,0.85)` with white border.
 
 ---
 
@@ -575,11 +606,11 @@ function roundedRect(ctx, x, y, w, h, r) {
 
 function drawFrameAFallback(ctx, canvas) {
   canvas.width = FRAME_A_SIZE; canvas.height = FRAME_A_SIZE
-  // Transparent center, violet border
+  // Transparent center, yellow border
   ctx.clearRect(0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
   // Border ring
   const bw = 40
-  ctx.fillStyle = '#6C47FF'
+  ctx.fillStyle = '#F0E040'
   // Top
   ctx.fillRect(0, 0, FRAME_A_SIZE, bw)
   // Bottom
@@ -589,9 +620,9 @@ function drawFrameAFallback(ctx, canvas) {
   // Right
   ctx.fillRect(FRAME_A_SIZE - bw, bw, bw, FRAME_A_SIZE - bw * 2 - 120)
   // Bottom text strip
-  ctx.fillStyle = '#6C47FF'
+  ctx.fillStyle = '#F0E040'
   ctx.fillRect(0, FRAME_A_SIZE - 120, FRAME_A_SIZE, 120)
-  ctx.fillStyle = '#fff'
+  ctx.fillStyle = '#0A0A0A'
   ctx.font = '700 48px Inter, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('HH GOA 2026', FRAME_A_SIZE / 2, FRAME_A_SIZE - 55)
@@ -623,23 +654,23 @@ export async function compositeFrameA(userPhoto) {
 
 function drawCardBgFallback(ctx, canvas) {
   canvas.width = CARD_W; canvas.height = CARD_H
-  // Dark gradient bg
+  // Forest green gradient bg
   const grad = ctx.createLinearGradient(0, 0, 0, CARD_H)
-  grad.addColorStop(0, '#0A0E1A'); grad.addColorStop(1, '#141824')
+  grad.addColorStop(0, '#1C5E2A'); grad.addColorStop(1, '#174F23')
   ctx.fillStyle = grad; ctx.fillRect(0, 0, CARD_W, CARD_H)
   // Header bar
-  ctx.fillStyle = '#6C47FF'
+  ctx.fillStyle = '#F0E040'
   ctx.fillRect(0, 0, CARD_W, 200)
-  ctx.fillStyle = '#fff'
+  ctx.fillStyle = '#0A0A0A'
   ctx.font = '800 56px Inter, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('HH GOA 2026', CARD_W / 2, 90)
   ctx.font = '600 32px Inter, sans-serif'
   ctx.fillText('BUILDER PASS', CARD_W / 2, 148)
   // Footer bar
-  ctx.fillStyle = '#6C47FF'
+  ctx.fillStyle = '#F0E040'
   ctx.fillRect(0, CARD_H - 100, CARD_W, 100)
-  ctx.fillStyle = '#fff'
+  ctx.fillStyle = '#0A0A0A'
   ctx.font = '500 28px Inter, sans-serif'
   ctx.textAlign = 'center'
   ctx.fillText('GOA · AUGUST 2026  |  #HHGoa2026', CARD_W / 2, CARD_H - 38)
@@ -680,12 +711,12 @@ export async function compositeFrameB(userPhoto, fields) {
   ctx.textAlign = 'left'
 
   // Name
-  ctx.fillStyle = '#F5C518'  // gold
+  ctx.fillStyle = '#F0E040'  // yellow
   ctx.font = '800 56px Inter, sans-serif'
   wrapText(ctx, fields.name || 'Your Name', textX, 310, 560, 68)
 
   // Stack / role
-  ctx.fillStyle = '#F0F0F0'
+  ctx.fillStyle = '#FFFFFF'
   ctx.font = '500 32px Inter, sans-serif'
   wrapText(ctx, fields.stack || 'Builder', textX, 420, 560, 44)
 
@@ -695,7 +726,7 @@ export async function compositeFrameB(userPhoto, fields) {
   ctx.beginPath(); ctx.moveTo(textX, 490); ctx.lineTo(CARD_W - 40, 490); ctx.stroke()
 
   // Builder title
-  ctx.fillStyle = '#6C47FF'
+  ctx.fillStyle = '#F0E040'
   ctx.font = 'italic 700 36px Inter, sans-serif'
   ctx.fillText('"' + (fields.builderTitle || 'Builder') + '"', textX, 545)
 
@@ -747,33 +778,66 @@ export function downloadImage(blob, filename) {
 }
 
 /**
- * Share to X. Uses Web Share API on mobile if supported (can share the file),
- * falls back to Twitter Intent URL on desktop.
+ * Copy a PNG Blob to the system clipboard so the user can paste it into the
+ * X composer. Best-effort — returns false if the Clipboard API is unavailable.
+ * @param {Blob} blob
+ * @returns {Promise<boolean>}
+ */
+export async function copyImageToClipboard(blob) {
+  try {
+    if (!navigator.clipboard || typeof ClipboardItem === 'undefined') return false
+    await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+    return true
+  } catch (e) {
+    console.warn('Clipboard image copy failed', e)
+    return false
+  }
+}
+
+/**
+ * Share to X.
+ *
+ * Primary path: Web Share API with the PNG file attached. On iOS/Android the X
+ * app opens a composer with the image + caption ready to post. On Windows/Mac
+ * the native OS share sheet opens (works when the X app is a share target).
+ *
+ * Fallback: Twitter Intent URL. The Intent API can ONLY pre-fill text — it can
+ * never auto-attach a local image. So we also copy the PNG to the clipboard so
+ * the user can paste it into the tweet.
+ *
  * @param {Blob} blob
  * @param {'a'|'b'} format
+ * @returns {Promise<'shared'|'cancelled'|'intent'>}
  */
 export async function shareToX(blob, format) {
   const filename = format === 'a' ? DOWNLOAD_FILENAME_A : DOWNLOAD_FILENAME_B
   const file = new File([blob], filename, { type: 'image/png' })
 
-  // Try native share with image (iOS 16+, Android Chrome)
+  // Primary: native share with the image attached — try on ALL platforms, not
+  // just mobile. Desktop Chrome/Edge/Win11 and macOS Safari support file shares.
   if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], text: TWEET_TEXT, title: 'HH Goa 2026' })
-      return
+      return 'shared'
     } catch (err) {
-      if (err.name !== 'AbortError') console.warn('Share failed, falling back', err)
-      else return  // user cancelled — do nothing
+      if (err.name === 'AbortError') return 'cancelled'   // user dismissed the sheet
+      console.warn('Share with image failed, falling back', err)
     }
   }
 
-  // Fallback: Twitter Intent URL (desktop)
+  // Fallback: copy the image to the clipboard so the X composer can be made
+  // "ready to post" with a single paste.
+  await copyImageToClipboard(blob)
+
   const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(TWEET_TEXT)}`
   window.open(url, '_blank', 'noopener')
+  return 'intent'
 }
 
 export { DOWNLOAD_FILENAME_A, DOWNLOAD_FILENAME_B }
 ```
+
+> **Note (share-to-X limitation):** `twitter.com/intent/tweet` can only pre-fill text — it can never attach a local image. Only the Web Share API (X app on mobile / OS share sheet on desktop) delivers an image-ready composer. The Intent fallback therefore copies the PNG to the clipboard and the UI tells the user to paste it. This is the best possible UX with a zero-backend build.
 
 ---
 
@@ -976,7 +1040,12 @@ btnDownload.addEventListener('click', () => {
 btnShareX.addEventListener('click', async () => {
   if (!currentBlob) return
   try {
-    await shareToX(currentBlob, currentFormat)
+    const result = await shareToX(currentBlob, currentFormat)
+    if (result === 'shared') {
+      showToast('Composer opened with your graphic ready to post! 🚀', 'success')
+    } else if (result === 'intent') {
+      showToast('Image copied to clipboard — paste it in the tweet, then hit Post.', 'info')
+    }
   } catch (e) {
     showToast('Could not share. Try downloading and posting manually.', 'error')
   }
