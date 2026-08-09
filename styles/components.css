@@ -1,13 +1,23 @@
 /* =========================================================
    HEADER
    ========================================================= */
-.header__logo {
-  font-family: var(--font-heading);
-  font-size: 1.75rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-brand-accent);   /* yellow — no gradient */
+.header__logo-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header__wordmark {
+  height: clamp(44px, 8vw, 64px);
+  width: auto;
+  display: block;
+}
+
+.header__goa-hindi {
+  height: clamp(36px, 7vw, 52px);
+  width: auto;
+  opacity: 0.9;
 }
 
 .header__tagline {
@@ -17,19 +27,39 @@
 }
 
 /* =========================================================
-   CROSS DIVIDER
+   CROSS DIVIDER (decorative_border.svg)
    ========================================================= */
 .cross-divider {
-  color: var(--color-cross-divider);
-  font-size: 0.875rem;
-  letter-spacing: 0.15em;
   text-align: center;
-  padding: var(--space-sm) 0;
+  padding: 4px 0;
   overflow: hidden;
-  white-space: nowrap;
-  opacity: 0.7;
-  user-select: none;
+  line-height: 0;
 }
+
+.divider__img {
+  width: 100%;
+  max-width: 100%;
+  height: 20px;
+  object-fit: cover;
+  opacity: 0.7;
+}
+
+/* =========================================================
+   FOOTER TREES
+   ========================================================= */
+.footer__trees {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 700px;
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.site-footer p { position: relative; z-index: 1; }
 
 /* =========================================================
    UPLOAD ZONE

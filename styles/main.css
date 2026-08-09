@@ -2,12 +2,13 @@
    DESIGN TOKENS  (v2.0 — confirmed from hhgoa.com screenshots)
    ========================================================= */
 :root {
-  /* Brand */
+  /* Brand — confirmed from official hhgoa.com SVGs */
   --color-brand-primary:   #1C5E2A;   /* forest green — main bg */
-  --color-brand-accent:    #F0E040;   /* bright yellow — main accent */
-  --color-brand-accent-h:  #F5E860;   /* yellow hover state */
-  --color-brand-gold:      #F0E040;   /* same as accent */
-  --color-brand-pink:      #E91E8C;   /* hot pink — decorative only */
+  --color-brand-accent:    #FEE101;   /* brand yellow — confirmed from SVG source */
+  --color-brand-accent-h:  #FFF05A;   /* yellow hover state */
+  --color-brand-gold:      #FEE101;   /* same as accent */
+  --color-brand-pink:      #FF0080;   /* hot pink — confirmed from goa_hindi.svg */
+  --color-brand-border-green: #9AC95F; /* teardrop green — confirmed from decorative_border.svg */
 
   /* Surfaces */
   --color-bg:              #1C5E2A;   /* forest green */
@@ -18,7 +19,7 @@
   /* Text */
   --color-text-primary:    #FFFFFF;
   --color-text-secondary:  rgba(255, 255, 255, 0.7);
-  --color-text-accent:     #F0E040;   /* yellow */
+  --color-text-accent:     #FEE101;   /* yellow */
 
   /* Semantic */
   --color-success:         #1A7A3A;   /* dark green (harmonizes) */
@@ -29,7 +30,7 @@
   --color-btn-text:        #0A0A0A;
 
   /* Cross divider rows */
-  --color-cross-divider:   #D4C830;   /* slightly muted yellow */
+  --color-cross-divider:   #9AC95F;   /* matches decorative_border.svg teardrops */
 
   /* Spacing */
   --space-xs:   4px;
@@ -102,7 +103,23 @@ a:hover { text-decoration: underline; }
   position: relative;
 }
 
+/* Subtle tropical texture from official sunrise illustration (hhgoa.com) */
+.app::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('../assets/brand/sunrise_illustration.png') center bottom / cover no-repeat;
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.step { position: relative; z-index: 1; }
+
 .site-footer {
+  position: relative;
+  overflow: hidden;
   padding: var(--space-lg) var(--space-md);
   text-align: center;
   color: var(--color-text-secondary);

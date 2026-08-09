@@ -67,7 +67,7 @@ function drawFrameAFallback(ctx, canvas) {
   ctx.clearRect(0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
   // Border ring
   const bw = 40
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   // Top
   ctx.fillRect(0, 0, FRAME_A_SIZE, bw)
   // Bottom
@@ -77,7 +77,7 @@ function drawFrameAFallback(ctx, canvas) {
   // Right
   ctx.fillRect(FRAME_A_SIZE - bw, bw, bw, FRAME_A_SIZE - bw * 2 - 120)
   // Bottom text strip
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   ctx.fillRect(0, FRAME_A_SIZE - 120, FRAME_A_SIZE, 120)
   ctx.fillStyle = '#0A0A0A'
   ctx.font = '700 48px Inter, sans-serif'
@@ -104,6 +104,13 @@ export async function compositeFrameA(userPhoto) {
   const frame = await loadImage('assets/frame-a/overlay.png', drawFrameAFallback)
   ctx.drawImage(frame, 0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
 
+  // 3. goa_hindi watermark — bottom-left, matching hhgoa.com usage
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  ctx.save()
+  ctx.globalAlpha = 0.85
+  ctx.drawImage(goaHindi, 40, FRAME_A_SIZE - 100, 80, 80)
+  ctx.restore()
+
   return new Promise((res) => canvas.toBlob(res, 'image/png'))
 }
 
@@ -116,7 +123,7 @@ function drawCardBgFallback(ctx, canvas) {
   grad.addColorStop(0, '#1C5E2A'); grad.addColorStop(1, '#174F23')
   ctx.fillStyle = grad; ctx.fillRect(0, 0, CARD_W, CARD_H)
   // Header bar
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   ctx.fillRect(0, 0, CARD_W, 200)
   ctx.fillStyle = '#0A0A0A'
   ctx.font = '800 56px Inter, sans-serif'
@@ -125,7 +132,7 @@ function drawCardBgFallback(ctx, canvas) {
   ctx.font = '600 32px Inter, sans-serif'
   ctx.fillText('BUILDER PASS', CARD_W / 2, 148)
   // Footer bar
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   ctx.fillRect(0, CARD_H - 100, CARD_W, 100)
   ctx.fillStyle = '#0A0A0A'
   ctx.font = '500 28px Inter, sans-serif'
@@ -154,7 +161,19 @@ export async function compositeFrameB(userPhoto, fields) {
   const bg = await loadImage('assets/frame-b/card-bg.png', drawCardBgFallback)
   ctx.drawImage(bg, 0, 0, CARD_W, CARD_H)
 
-  // 2. User photo — left 42% of card, vertically centered in the middle zone
+  // 2. Header bar — clean yellow with the real wordmark (replaces baked text)
+  ctx.fillStyle = '#FEE101'
+  ctx.fillRect(0, 0, CARD_W, 200)
+  const wordmark = await loadImage('assets/brand/hacker_house_wordmark_sm.svg', () => {})
+  const wmH = 100
+  const wmW = wordmark.width > 0 ? (wordmark.width / wordmark.height) * wmH : 115
+  ctx.drawImage(wordmark, (CARD_W - wmW) / 2, 28, wmW, wmH)
+  ctx.fillStyle = '#0A0A0A'
+  ctx.font = '600 26px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('BUILDER PASS', CARD_W / 2, 176)
+
+  // 3. User photo — left 42% of card, vertically centered in the middle zone
   const photoX = 40, photoY = 240
   const photoW = 400, photoH = 400
   ctx.save()
@@ -163,12 +182,12 @@ export async function compositeFrameB(userPhoto, fields) {
   drawCover(ctx, userPhoto, photoX, photoY, photoW, photoH)
   ctx.restore()
 
-  // 3. Text — right side
+  // 4. Text — right side
   const textX = 480
   ctx.textAlign = 'left'
 
   // Name
-  ctx.fillStyle = '#F0E040'  // yellow
+  ctx.fillStyle = '#FEE101'  // brand yellow
   ctx.font = '800 56px Inter, sans-serif'
   wrapText(ctx, fields.name || 'Your Name', textX, 310, 560, 68)
 
@@ -177,15 +196,28 @@ export async function compositeFrameB(userPhoto, fields) {
   ctx.font = '500 32px Inter, sans-serif'
   wrapText(ctx, fields.stack || 'Builder', textX, 420, 560, 44)
 
-  // Divider line
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'
-  ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(textX, 490); ctx.lineTo(CARD_W - 40, 490); ctx.stroke()
+  // Divider — decorative_border.svg (replaces the manual stroke line)
+  const border = await loadImage('assets/brand/decorative_border.svg', () => {})
+  ctx.drawImage(border, 480, 490, 560, 20)
 
   // Builder title
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   ctx.font = 'italic 700 36px Inter, sans-serif'
   ctx.fillText('"' + (fields.builderTitle || 'Builder') + '"', textX, 545)
+
+  // 5. Footer bar — clean yellow, redraw footer text, goa_hindi accent at right
+  ctx.fillStyle = '#FEE101'
+  ctx.fillRect(0, CARD_H - 100, CARD_W, 100)
+  ctx.fillStyle = '#0A0A0A'
+  ctx.font = '500 28px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('GOA · AUGUST 2026  |  #HHGoa2026', CARD_W / 2, CARD_H - 38)
+  ctx.textAlign = 'left'
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  ctx.save()
+  ctx.globalAlpha = 0.7
+  ctx.drawImage(goaHindi, CARD_W - 40 - 50, CARD_H - 75, 50, 50)
+  ctx.restore()
 
   return new Promise((res) => canvas.toBlob(res, 'image/png'))
 }

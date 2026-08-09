@@ -50,6 +50,13 @@ Id_card_generator/              ← repo root
 │   ├── share.js                ← Twitter Intent + Web Share API
 │   └── ui.js                   ← Step wizard, DOM helpers, toasts
 ├── assets/
+│   ├── brand/                   ← Official hhgoa.com assets (see docs/brand-assets-guide.md)
+│   │   ├── hacker_house_wordmark_sm.svg   ← header logo + card wordmark
+│   │   ├── goa_hindi.svg                  ← Devanagari "गोआ" accent + watermark
+│   │   ├── decorative_border.svg          ← section divider + card divider
+│   │   ├── footer_trees.png               ← footer background
+│   │   ├── sunrise_illustration.png       ← app texture (opacity 0.04)
+│   │   └── (logo_247pm, hackers, details, agenda — NOT used in the UI)
 │   ├── frame-a/
 │   │   └── overlay.png         ← PFP frame overlay (1080×1080, transparent center)
 │   ├── frame-b/
@@ -69,7 +76,9 @@ Id_card_generator/              ← repo root
 
 ## 3. Placeholder Assets
 
-**Real brand assets are being arranged.** Until they arrive, you MUST generate placeholder assets programmatically so the app is fully functional. The code must require **zero changes** when real assets drop in.
+**Official brand assets from hhgoa.com live in `assets/brand/`** (see `docs/brand-assets-guide.md` — that guide is the ground truth for their use). They are used for: the header wordmark (`hacker_house_wordmark_sm.svg`), the Devanagari "गोआ" accent (`goa_hindi.svg`), the section divider (`decorative_border.svg`), the footer palm trees (`footer_trees.png`), and the sunrise texture behind the app (`sunrise_illustration.png`). The canvas compositor also draws the wordmark, goa_hindi watermark, and decorative border into generated graphics.
+
+**Only `assets/frame-a/overlay.png` and `assets/frame-b/card-bg.png` are still placeholders.** They are generated programmatically (see `generate-assets.ps1` in temp) with the confirmed brand yellow `#FEE101`. The code must require **zero changes** when real assets drop in.
 
 ### Placeholder Strategy
 
@@ -77,16 +86,17 @@ Generate both placeholder PNGs using a **one-time canvas script** (`scripts/gene
 
 **Placeholder Frame A (overlay.png):**
 - 1080×1080 transparent PNG
-- 40px border ring of `#F0E040` (bright yellow)
-- Bottom strip (height 120px): `#F0E040` background, dark `#0A0A0A` text "HH GOA 2026" centered, 48px Inter 700
+- 40px border ring of `#FEE101` (brand yellow)
+- Bottom strip (height 120px): `#FEE101` background, dark `#0A0A0A` text "HH GOA 2026" centered, 48px Inter 700
 - Small "#FrameInGoa" text at bottom right in dark `#0A0A0A`, 24px
+- `goa_hindi.svg` is drawn at runtime as a bottom-left watermark (see §4.5)
 
 **Placeholder Card Background (card-bg.png):**
 - 1080×1350 px
 - Forest green gradient background: `#1C5E2A` → `#174F23`
-- Header zone (top 200px): `#F0E040` bar, "HH GOA 2026" + "BUILDER PASS" in dark `#0A0A0A` Inter 800 56px centered
+- Header zone (top 200px): `#FEE101` bar, "HH GOA 2026" + "BUILDER PASS" in dark `#0A0A0A` Inter 800 56px centered (runtime compositor covers this and draws the real wordmark SVG instead)
 - Photo zone outline: dashed white rectangle at left 40% × center vertical
-- Footer zone (bottom 100px): `#F0E040` bar, "GOA · AUGUST 2026  |  #HHGoa2026" centered dark `#0A0A0A` 28px
+- Footer zone (bottom 100px): `#FEE101` bar, "GOA · AUGUST 2026  |  #HHGoa2026" centered dark `#0A0A0A` 28px
 
 ### Runtime Fallback Pattern
 
@@ -158,11 +168,16 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
 
   <!-- HEADER -->
   <header class="site-header">
-    <div class="header__logo">HH GOA 2026</div>
+    <div class="header__logo-wrap">
+      <img src="assets/brand/hacker_house_wordmark_sm.svg" alt="Hacker House Goa 2026" class="header__wordmark">
+      <img src="assets/brand/goa_hindi.svg" alt="" aria-hidden="true" class="header__goa-hindi">
+    </div>
     <p class="header__tagline">Get your builder frame. Share on X.</p>
   </header>
 
-  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
+  <div class="cross-divider" aria-hidden="true">
+    <img src="assets/brand/decorative_border.svg" alt="" class="divider__img">
+  </div>
 
   <!-- MAIN APP -->
   <main class="app" id="app">
@@ -243,10 +258,13 @@ Work through these in order. Mark each task `[/]` when started and `[x]` when do
 
   </main>
 
-  <div class="cross-divider" aria-hidden="true">× × × × × × × × × × × × × × × × × × × × × × × × ×</div>
+  <div class="cross-divider" aria-hidden="true">
+    <img src="assets/brand/decorative_border.svg" alt="" class="divider__img">
+  </div>
 
   <!-- FOOTER -->
   <footer class="site-footer">
+    <img src="assets/brand/footer_trees.png" alt="" aria-hidden="true" class="footer__trees">
     <p>HH Goa 2026 · <a href="https://forms.gle/jM5hTaGvsrfEfixPA" target="_blank" rel="noopener">Submit your entry</a></p>
   </footer>
 
@@ -274,10 +292,11 @@ Define all CSS custom properties here. No component-specific rules (those go in 
 :root {
   /* Brand */
   --color-brand-primary:   #1C5E2A;   /* forest green — main bg */
-  --color-brand-accent:    #F0E040;   /* bright yellow — main accent */
-  --color-brand-accent-h:  #F5E860;   /* yellow hover state */
-  --color-brand-gold:      #F0E040;   /* same as accent */
-  --color-brand-pink:      #E91E8C;   /* hot pink — decorative only */
+  --color-brand-accent:    #FEE101;   /* brand yellow — confirmed from SVG source */
+  --color-brand-accent-h:  #FFF05A;   /* yellow hover state */
+  --color-brand-gold:      #FEE101;   /* same as accent */
+  --color-brand-pink:      #FF0080;   /* hot pink — confirmed from goa_hindi.svg */
+  --color-brand-border-green: #9AC95F; /* teardrop green — confirmed from decorative_border.svg */
 
   /* Surfaces */
   --color-bg:              #1C5E2A;   /* forest green */
@@ -288,7 +307,7 @@ Define all CSS custom properties here. No component-specific rules (those go in 
   /* Text */
   --color-text-primary:    #FFFFFF;
   --color-text-secondary:  rgba(255, 255, 255, 0.7);
-  --color-text-accent:     #F0E040;   /* yellow */
+  --color-text-accent:     #FEE101;   /* yellow */
 
   /* Semantic */
   --color-success:         #1A7A3A;   /* dark green (harmonizes) */
@@ -299,7 +318,7 @@ Define all CSS custom properties here. No component-specific rules (those go in 
   --color-btn-text:        #0A0A0A;
 
   /* Cross divider rows */
-  --color-cross-divider:   #D4C830;   /* slightly muted yellow */
+  --color-cross-divider:   #9AC95F;   /* matches decorative_border.svg teardrops */
 
   /* Spacing */
   --space-xs:   4px;
@@ -647,6 +666,13 @@ export async function compositeFrameA(userPhoto) {
   const frame = await loadImage('assets/frame-a/overlay.png', drawFrameAFallback)
   ctx.drawImage(frame, 0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
 
+  // 3. goa_hindi watermark — bottom-left, matching hhgoa.com usage
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  ctx.save()
+  ctx.globalAlpha = 0.85
+  ctx.drawImage(goaHindi, 40, FRAME_A_SIZE - 100, 80, 80)
+  ctx.restore()
+
   return new Promise((res) => canvas.toBlob(res, 'image/png'))
 }
 
@@ -697,7 +723,19 @@ export async function compositeFrameB(userPhoto, fields) {
   const bg = await loadImage('assets/frame-b/card-bg.png', drawCardBgFallback)
   ctx.drawImage(bg, 0, 0, CARD_W, CARD_H)
 
-  // 2. User photo — left 42% of card, vertically centered in the middle zone
+  // 2. Header bar — clean yellow with the real wordmark (replaces baked text)
+  ctx.fillStyle = '#FEE101'
+  ctx.fillRect(0, 0, CARD_W, 200)
+  const wordmark = await loadImage('assets/brand/hacker_house_wordmark_sm.svg', () => {})
+  const wmH = 100
+  const wmW = wordmark.width > 0 ? (wordmark.width / wordmark.height) * wmH : 115
+  ctx.drawImage(wordmark, (CARD_W - wmW) / 2, 28, wmW, wmH)
+  ctx.fillStyle = '#0A0A0A'
+  ctx.font = '600 26px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('BUILDER PASS', CARD_W / 2, 176)
+
+  // 3. User photo — left 42% of card, vertically centered in the middle zone
   const photoX = 40, photoY = 240
   const photoW = 400, photoH = 400
   ctx.save()
@@ -706,12 +744,12 @@ export async function compositeFrameB(userPhoto, fields) {
   drawCover(ctx, userPhoto, photoX, photoY, photoW, photoH)
   ctx.restore()
 
-  // 3. Text — right side
+  // 4. Text — right side
   const textX = 480
   ctx.textAlign = 'left'
 
   // Name
-  ctx.fillStyle = '#F0E040'  // yellow
+  ctx.fillStyle = '#FEE101'  // brand yellow
   ctx.font = '800 56px Inter, sans-serif'
   wrapText(ctx, fields.name || 'Your Name', textX, 310, 560, 68)
 
@@ -720,15 +758,28 @@ export async function compositeFrameB(userPhoto, fields) {
   ctx.font = '500 32px Inter, sans-serif'
   wrapText(ctx, fields.stack || 'Builder', textX, 420, 560, 44)
 
-  // Divider line
-  ctx.strokeStyle = 'rgba(255,255,255,0.15)'
-  ctx.lineWidth = 1
-  ctx.beginPath(); ctx.moveTo(textX, 490); ctx.lineTo(CARD_W - 40, 490); ctx.stroke()
+  // Divider — decorative_border.svg (replaces the manual stroke line)
+  const border = await loadImage('assets/brand/decorative_border.svg', () => {})
+  ctx.drawImage(border, 480, 490, 560, 20)
 
   // Builder title
-  ctx.fillStyle = '#F0E040'
+  ctx.fillStyle = '#FEE101'
   ctx.font = 'italic 700 36px Inter, sans-serif'
   ctx.fillText('"' + (fields.builderTitle || 'Builder') + '"', textX, 545)
+
+  // 5. Footer bar — clean yellow, redraw footer text, goa_hindi accent at right
+  ctx.fillStyle = '#FEE101'
+  ctx.fillRect(0, CARD_H - 100, CARD_W, 100)
+  ctx.fillStyle = '#0A0A0A'
+  ctx.font = '500 28px Inter, sans-serif'
+  ctx.textAlign = 'center'
+  ctx.fillText('GOA · AUGUST 2026  |  #HHGoa2026', CARD_W / 2, CARD_H - 38)
+  ctx.textAlign = 'left'
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  ctx.save()
+  ctx.globalAlpha = 0.7
+  ctx.drawImage(goaHindi, CARD_W - 40 - 50, CARD_H - 75, 50, 50)
+  ctx.restore()
 
   return new Promise((res) => canvas.toBlob(res, 'image/png'))
 }

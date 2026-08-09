@@ -101,6 +101,25 @@
 
 ---
 
+## Phase 3.5 — Official Brand Assets (from hhgoa.com)
+
+- [x] Download brand assets into `assets/brand/` (wordmarks, goa_hindi, decorative_border, footer_trees)
+- [x] Replace text header logo with `hacker_house_wordmark_sm.svg`
+- [x] Add `goa_hindi.svg` as decorative accent in the header
+- [x] Replace `× × ×` text dividers with `decorative_border.svg`
+- [x] Add `footer_trees.png` as subtle background behind the footer
+- [x] Add `sunrise_illustration.png` as subtle texture behind the app (opacity 0.04)
+- [x] Update `--color-brand-accent` from `#F0E040` → `#FEE101` (confirmed from SVG source)
+- [x] Update brand pink token `#E91E8C` → `#FF0080`, add border green `#9AC95F`
+- [x] Regenerate placeholder frame assets with correct `#FEE101` brand yellow
+- [x] `canvas.js`: use wordmark SVG in card header bar (replaces baked text)
+- [x] `canvas.js`: add `goa_hindi.svg` watermark to Format A (bottom-left) and Format B (footer right)
+- [x] `canvas.js`: use `decorative_border.svg` as the card divider between text zones
+- [x] Full-flow smoke test (390px mobile + desktop) — 0 console errors
+- [x] Pixel-verify both output formats (1080×1080 / 1080×1350, brand colors correct)
+
+---
+
 ## Phase 4 — Share & OG Image
 
 - [x] Finalize Twitter Intent URL with correct parameters
