@@ -5,25 +5,44 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: var(--space-md);
 }
 
+/* The big editorial HACKER HOUSE SVG wordmark — dominant like hhgoa.com hero */
 .header__wordmark {
-  height: clamp(44px, 8vw, 64px);
+  height: clamp(80px, 15vw, 140px);
+  /* MUCH larger — was 44-64px */
   width: auto;
   display: block;
 }
 
+/* The गोआ Devanagari accent — hot pink overlay, same size as wordmark */
 .header__goa-hindi {
-  height: clamp(36px, 7vw, 52px);
+  height: clamp(70px, 13vw, 120px);
   width: auto;
-  opacity: 0.9;
+  opacity: 1;
 }
 
 .header__tagline {
-  margin-top: var(--space-xs);
+  margin-top: 0;
   color: var(--color-text-secondary);
   font-size: 0.9375rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* "GOA, INDIA · AUGUST 2026" — the editorial location/date subline */
+.header__location {
+  font-family: var(--font-body);
+  font-size: clamp(0.75rem, 2.5vw, 1rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-brand-accent);
+  margin-bottom: var(--space-sm);
 }
 
 /* =========================================================
@@ -49,17 +68,21 @@
    ========================================================= */
 .footer__trees {
   position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 0;
   width: 100%;
-  max-width: 700px;
-  opacity: 0.12;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  opacity: 1;
+  /* full natural colors — no green tint */
   pointer-events: none;
   z-index: 0;
 }
 
-.site-footer p { position: relative; z-index: 1; }
+.site-footer p {
+  position: relative;
+  z-index: 1;
+}
 
 /* =========================================================
    UPLOAD ZONE
@@ -93,10 +116,12 @@
 }
 
 .upload-zone__icon {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
+  /* bigger arrow icon */
   font-weight: 700;
   color: var(--color-brand-accent);
   line-height: 1;
+  margin-bottom: var(--space-xs);
 }
 
 .upload-zone__text {
@@ -185,7 +210,9 @@
   opacity: 0.8;
 }
 
-.format-toggle__btn--active .format-toggle__desc { opacity: 0.85; }
+.format-toggle__btn--active .format-toggle__desc {
+  opacity: 0.85;
+}
 
 /* =========================================================
    FIELDS
@@ -223,7 +250,9 @@
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.field__input::placeholder { color: rgba(255, 255, 255, 0.4); }
+.field__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
 
 .field__input:focus {
   outline: none;
@@ -231,21 +260,47 @@
   box-shadow: 0 0 0 3px rgba(240, 224, 64, 0.2);
 }
 
-.builder-title {
+.builder-title-wrap {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
-  padding: 12px 16px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  border-radius: var(--radius-md);
 }
 
-.builder-title__text {
+.builder-title__input {
   flex: 1;
   font-weight: 700;
   font-style: italic;
   color: var(--color-brand-accent);
+}
+
+/* =========================================================
+   STEP CONFIG LAYOUT (Side-by-side on wide screens)
+   ========================================================= */
+.step-config-layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+@media (min-width: 768px) {
+  .step-config-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-2xl);
+    align-items: start;
+  }
+}
+
+.step-config__settings {
+  display: flex;
+  flex-direction: column;
+}
+
+.step-config__preview {
+  display: flex;
+  justify-content: center;
+  position: sticky;
+  top: var(--space-xl);
 }
 
 /* =========================================================
@@ -261,15 +316,24 @@
   font-weight: 700;
   cursor: pointer;
   border: none;
-  border-radius: var(--radius-pill);   /* 4px — sharp, no pill */
+  border-radius: var(--radius-pill);
+  /* 4px — sharp, no pill */
   transition: all var(--transition-fast);
   text-decoration: none;
   white-space: nowrap;
 }
 
 /* Sizes */
-.btn--sm  { padding: 8px 16px;  font-size: 0.875rem; }
-.btn--lg  { padding: 16px 32px; font-size: 1.0625rem; width: 100%; }
+.btn--sm {
+  padding: 8px 16px;
+  font-size: 0.875rem;
+}
+
+.btn--lg {
+  padding: 16px 32px;
+  font-size: 1.0625rem;
+  width: 100%;
+}
 
 /* Primary — signature dashed border on yellow fill */
 .btn--primary {
@@ -280,8 +344,15 @@
   letter-spacing: 0.06em;
   box-shadow: var(--shadow-btn);
 }
-.btn--primary:hover { background: var(--color-brand-accent-h); transform: translateY(-2px); }
-.btn--primary:active { transform: translateY(0); }
+
+.btn--primary:hover {
+  background: var(--color-brand-accent-h);
+  transform: translateY(-2px);
+}
+
+.btn--primary:active {
+  transform: translateY(0);
+}
 
 /* X/Twitter — dashed border, black fill */
 .btn--x {
@@ -291,8 +362,15 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
-.btn--x:hover { background: #1a1a1a; transform: translateY(-2px); }
-.btn--x:active { transform: translateY(0); }
+
+.btn--x:hover {
+  background: #1a1a1a;
+  transform: translateY(-2px);
+}
+
+.btn--x:active {
+  transform: translateY(0);
+}
 
 /* Ghost */
 .btn--ghost {
@@ -301,7 +379,11 @@
   border: 1.5px solid rgba(255, 255, 255, 0.3);
   border-radius: var(--radius-md);
 }
-.btn--ghost:hover { border-color: var(--color-brand-accent); color: var(--color-brand-accent); }
+
+.btn--ghost:hover {
+  border-color: var(--color-brand-accent);
+  color: var(--color-brand-accent);
+}
 
 /* =========================================================
    OUTPUT PREVIEW
@@ -321,8 +403,15 @@
 }
 
 @keyframes cardIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to   { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .output-actions {
@@ -344,7 +433,8 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-md);
-  background: rgba(15, 50, 20, 0.95);   /* green-tinted dark overlay */
+  background: rgba(15, 50, 20, 0.95);
+  /* green-tinted dark overlay */
 }
 
 .loading-overlay__spinner {
@@ -357,7 +447,9 @@
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-overlay__text {
@@ -391,6 +483,15 @@
   transform: translate(-50%, 0);
 }
 
-.toast--success { background: var(--color-success); }
-.toast--error   { background: var(--color-error); }
-.toast--info    { background: rgba(0, 0, 0, 0.85); border: 1px solid rgba(255, 255, 255, 0.3); }
+.toast--success {
+  background: var(--color-success);
+}
+
+.toast--error {
+  background: var(--color-error);
+}
+
+.toast--info {
+  background: rgba(0, 0, 0, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

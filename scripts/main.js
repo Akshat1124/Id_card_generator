@@ -9,26 +9,26 @@ import { showStep, setLoading, showToast, showUploadError, clearUploadError } fr
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let currentImageBitmap = null
 let currentBlob = null
-let currentFormat = 'a'  // 'a' | 'b'
+let currentFormat = 'b'  // 'a' | 'b'
 let currentBuilderTitle = randomBuilderTitle()
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
-const uploadZone       = document.getElementById('upload-zone')
-const fileInput        = document.getElementById('file-input')
-const photoPreview     = document.getElementById('photo-preview')
-const btnChangePhoto   = document.getElementById('btn-change-photo')
-const btnFormatA       = document.getElementById('btn-format-a')
-const btnFormatB       = document.getElementById('btn-format-b')
-const fieldsB          = document.getElementById('fields-b')
-const inputName        = document.getElementById('input-name')
-const inputStack       = document.getElementById('input-stack')
-const builderTitleDisp = document.getElementById('builder-title-display')
-const btnReroll        = document.getElementById('btn-reroll')
-const btnGenerate      = document.getElementById('btn-generate')
-const outputPreview    = document.getElementById('output-preview')
-const btnDownload      = document.getElementById('btn-download')
-const btnShareX        = document.getElementById('btn-share-x')
-const btnStartOver     = document.getElementById('btn-start-over')
+const uploadZone = document.getElementById('upload-zone')
+const fileInput = document.getElementById('file-input')
+const photoPreview = document.getElementById('photo-preview')
+const btnChangePhoto = document.getElementById('btn-change-photo')
+const btnFormatA = document.getElementById('btn-format-a')
+const btnFormatB = document.getElementById('btn-format-b')
+const fieldsB = document.getElementById('fields-b')
+const inputName = document.getElementById('input-name')
+const inputStack = document.getElementById('input-stack')
+const inputTitle = document.getElementById('input-title')
+const btnReroll = document.getElementById('btn-reroll')
+const btnGenerate = document.getElementById('btn-generate')
+const outputPreview = document.getElementById('output-preview')
+const btnDownload = document.getElementById('btn-download')
+const btnShareX = document.getElementById('btn-share-x')
+const btnStartOver = document.getElementById('btn-start-over')
 
 // ─── UPLOAD HANDLING ──────────────────────────────────────────────────────────
 async function handleFile(file) {
@@ -49,6 +49,7 @@ async function handleFile(file) {
       previewCanvas.toBlob((blob) => resolve(URL.createObjectURL(blob)), 'image/jpeg', 0.8)
     })
     photoPreview.src = previewObjectURL
+    inputTitle.value = currentBuilderTitle
     showStep('step-config')
   } catch (e) {
     // Show the specific error message if it came from our guards, otherwise generic
@@ -92,7 +93,7 @@ btnFormatB.addEventListener('click', () => setFormat('b'))
 // ─── BUILDER TITLE RE-ROLL ────────────────────────────────────────────────────
 btnReroll.addEventListener('click', () => {
   currentBuilderTitle = randomBuilderTitle()
-  builderTitleDisp.textContent = currentBuilderTitle
+  inputTitle.value = currentBuilderTitle
 })
 
 // ─── GENERATE ─────────────────────────────────────────────────────────────────
@@ -106,7 +107,7 @@ btnGenerate.addEventListener('click', async () => {
       currentBlob = await compositeFrameB(currentImageBitmap, {
         name: inputName.value.trim(),
         stack: inputStack.value.trim(),
-        builderTitle: currentBuilderTitle,
+        builderTitle: inputTitle.value.trim() || currentBuilderTitle,
       })
     }
     outputPreview.src = URL.createObjectURL(currentBlob)

@@ -1,9 +1,9 @@
 // scripts/canvas.js
 // Produces final PNG Blobs by compositing the user photo with brand assets.
 
-const FRAME_A_SIZE  = 1080          // square
-const CARD_W        = 1080
-const CARD_H        = 1350
+const FRAME_A_SIZE = 1080          // square
+const CARD_W = 1080
+const CARD_H = 1350
 
 const BUILDER_TITLES = [
   'Prompt Whisperer', 'Founding Hacker', 'Vibe Architect',
@@ -105,7 +105,7 @@ export async function compositeFrameA(userPhoto) {
   ctx.drawImage(frame, 0, 0, FRAME_A_SIZE, FRAME_A_SIZE)
 
   // 3. goa_hindi watermark — bottom-left, matching hhgoa.com usage
-  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => { })
   ctx.save()
   ctx.globalAlpha = 0.85
   ctx.drawImage(goaHindi, 40, FRAME_A_SIZE - 100, 80, 80)
@@ -164,7 +164,7 @@ export async function compositeFrameB(userPhoto, fields) {
   // 2. Header bar — clean yellow with the real wordmark (replaces baked text)
   ctx.fillStyle = '#FEE101'
   ctx.fillRect(0, 0, CARD_W, 200)
-  const wordmark = await loadImage('assets/brand/hacker_house_wordmark_sm.svg', () => {})
+  const wordmark = await loadImage('assets/brand/hacker_house_wordmark_sm.svg', () => { })
   const wmH = 100
   const wmW = wordmark.width > 0 ? (wordmark.width / wordmark.height) * wmH : 115
   ctx.drawImage(wordmark, (CARD_W - wmW) / 2, 28, wmW, wmH)
@@ -197,7 +197,7 @@ export async function compositeFrameB(userPhoto, fields) {
   wrapText(ctx, fields.stack || 'Builder', textX, 420, 560, 44)
 
   // Divider — decorative_border.svg (replaces the manual stroke line)
-  const border = await loadImage('assets/brand/decorative_border.svg', () => {})
+  const border = await loadImage('assets/brand/decorative_border.svg', () => { })
   ctx.drawImage(border, 480, 490, 560, 20)
 
   // Builder title
@@ -213,7 +213,7 @@ export async function compositeFrameB(userPhoto, fields) {
   ctx.textAlign = 'center'
   ctx.fillText('GOA · AUGUST 2026  |  #HHGoa2026', CARD_W / 2, CARD_H - 38)
   ctx.textAlign = 'left'
-  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => {})
+  const goaHindi = await loadImage('assets/brand/goa_hindi.svg', () => { })
   ctx.save()
   ctx.globalAlpha = 0.7
   ctx.drawImage(goaHindi, CARD_W - 40 - 50, CARD_H - 75, 50, 50)

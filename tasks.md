@@ -109,6 +109,7 @@
 - [x] Replace `× × ×` text dividers with `decorative_border.svg`
 - [x] Add `footer_trees.png` as subtle background behind the footer
 - [x] Add `sunrise_illustration.png` as subtle texture behind the app (opacity 0.04)
+- [x] Add green overlay over the header sunrise image so the wordmark stays readable (image kept visible, tinted brand green)
 - [x] Update `--color-brand-accent` from `#F0E040` → `#FEE101` (confirmed from SVG source)
 - [x] Update brand pink token `#E91E8C` → `#FF0080`, add border green `#9AC95F`
 - [x] Regenerate placeholder frame assets with correct `#FEE101` brand yellow

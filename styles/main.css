@@ -40,9 +40,10 @@
   --space-xl:   40px;
   --space-2xl:  64px;
 
-  /* Typography */
-  --font-body:    'Inter', -apple-system, sans-serif;
-  --font-heading: 'Playfair Display', Georgia, serif;
+  /* Typography — Victor Mono confirmed from hhgoa.com Network tab */
+  --font-body:    'Victor Mono', 'Inter', monospace;
+  --font-heading: 'Victor Mono', 'Inter', monospace;
+  --font-mono:    'Victor Mono', monospace;
 
   /* Radii — sharp corners, no pills */
   --radius-sm:   4px;
@@ -89,30 +90,50 @@ a:hover { text-decoration: underline; }
    LAYOUT
    ========================================================= */
 .site-header {
-  padding: var(--space-lg) var(--space-md);
+  padding: var(--space-2xl) var(--space-md) var(--space-xl);
   text-align: center;
   border-bottom: 1px solid var(--color-border);
+  position: relative;
+  overflow: hidden;
 }
+
+/* Sunrise illustration — positioned as a real img so it shows natural colors.
+   Stretches across the full screen behind all text content. */
+.header__sunrise {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+  z-index: 0;
+  display: block;
+}
+
+/* Green overlay on top of the sunrise image — keeps the colorful art visible
+   while guaranteeing the wordmark and header text stay clearly readable. */
+.site-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(23, 79, 35, 0.78), rgba(28, 94, 42, 0.66));
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* All direct children of header sit above the sunrise image + overlay */
+.site-header > *:not(.header__sunrise) { position: relative; z-index: 1; }
 
 .app {
   flex: 1;
-  max-width: 600px;
+  max-width: 1000px;
   width: 100%;
   margin: 0 auto;
   padding: var(--space-xl) var(--space-md);
   position: relative;
-}
-
-/* Subtle tropical texture from official sunrise illustration (hhgoa.com) */
-.app::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: url('../assets/brand/sunrise_illustration.png') center bottom / cover no-repeat;
-  opacity: 0.04;
-  pointer-events: none;
-  z-index: 0;
-  border-radius: inherit;
 }
 
 .step { position: relative; z-index: 1; }
@@ -120,6 +141,10 @@ a:hover { text-decoration: underline; }
 .site-footer {
   position: relative;
   overflow: hidden;
+  min-height: 160px;            /* enough room for palm trees to show */
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
   padding: var(--space-lg) var(--space-md);
   text-align: center;
   color: var(--color-text-secondary);
@@ -141,11 +166,13 @@ a:hover { text-decoration: underline; }
 
 .step__title {
   font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-size: clamp(2rem, 7vw, 3.5rem);   /* much bigger — matches hhgoa.com hero scale */
   font-weight: 800;
   text-align: center;
   text-transform: uppercase;
-  margin-bottom: var(--space-lg);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+  margin-bottom: var(--space-xl);
   color: var(--color-brand-accent);   /* solid yellow — no gradient */
 }
 

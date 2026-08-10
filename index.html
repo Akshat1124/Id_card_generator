@@ -1,10 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HH Goa 2026 — Frame Generator</title>
-  <meta name="description" content="Generate your branded HH Goa 2026 graphic. Upload your photo, download your frame, share on X. #FrameInGoa">
+  <meta name="description"
+    content="Generate your branded HH Goa 2026 graphic. Upload your photo, download your frame, share on X. #FrameInGoa">
 
   <!-- OG / Twitter Card -->
   <meta property="og:title" content="HH Goa 2026 — Frame Generator">
@@ -16,21 +18,28 @@
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Victor Mono — the actual font used on hhgoa.com (confirmed from Network tab) -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Victor+Mono:ital,wght@0,400;0,500;0,700;1,700&family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
   <!-- Styles -->
   <link rel="stylesheet" href="styles/main.css">
   <link rel="stylesheet" href="styles/components.css">
 </head>
+
 <body>
 
   <!-- HEADER -->
   <header class="site-header">
+    <!-- Sunrise illustration as real img — shows natural colors, no green overlay -->
+    <img src="assets/brand/sunrise_illustration.png" alt="" aria-hidden="true" class="header__sunrise">
     <div class="header__logo-wrap">
       <img src="assets/brand/hacker_house_wordmark_sm.svg" alt="Hacker House Goa 2026" class="header__wordmark">
-      <img src="assets/brand/goa_hindi.svg" alt="" aria-hidden="true" class="header__goa-hindi">
     </div>
-    <p class="header__tagline">Get your builder frame. Share on X.</p>
+    <p class="header__location">GOA, INDIA &middot; AUGUST 2026</p>
+    <p class="header__tagline">Get your builder frame &amp; share on X. #FrameInGoa</p>
   </header>
 
   <div class="cross-divider" aria-hidden="true">
@@ -53,46 +62,87 @@
     </section>
 
     <!-- STEP 2: Format + Fields -->
-    <section class="step" id="step-config" aria-label="Step 2: Choose format" hidden>
+    <section class="step" id="step-config" aria-label="Step 2: Customise your graphic" hidden>
+      
+      <div class="step-config-layout">
+        <!-- LEFT COLUMN: Settings -->
+        <div class="step-config__settings">
+          <!-- Format toggle — Builder ID Card (B) active by default -->
+          <div class="format-toggle" id="format-toggle" role="group" aria-label="Choose format">
+            <button class="format-toggle__btn format-toggle__btn--active" id="btn-format-b" data-format="b">
+              <span class="format-toggle__label">Builder ID Card</span>
+              <span class="format-toggle__desc">Event badge with your details</span>
+            </button>
+            <button class="format-toggle__btn" id="btn-format-a" data-format="a">
+              <span class="format-toggle__label">PFP Frame</span>
+              <span class="format-toggle__desc">Wraps your photo for X profile</span>
+            </button>
+          </div>
 
-      <!-- Photo preview -->
-      <div class="photo-preview" id="photo-preview-container">
-        <img id="photo-preview" alt="Your uploaded photo" class="photo-preview__img">
-        <button class="btn btn--ghost btn--sm" id="btn-change-photo">Change photo</button>
-      </div>
+          <!-- Photo Controls -->
+          <div class="photo-controls">
+            <div class="photo-controls__header">
+              <span class="field__label">Adjust Photo</span>
+              <button type="button" class="btn btn--ghost btn--sm" id="btn-reset-photo" title="Reset photo adjustments">↺ Reset</button>
+            </div>
 
-      <!-- Format toggle -->
-      <div class="format-toggle" id="format-toggle" role="group" aria-label="Choose format">
-        <button class="format-toggle__btn format-toggle__btn--active" id="btn-format-a" data-format="a">
-          <span class="format-toggle__label">PFP Frame</span>
-          <span class="format-toggle__desc">Wraps your photo for X profile</span>
-        </button>
-        <button class="format-toggle__btn" id="btn-format-b" data-format="b">
-          <span class="format-toggle__label">Builder ID Card</span>
-          <span class="format-toggle__desc">Event badge with your details</span>
-        </button>
-      </div>
+            <div class="control-group">
+              <label class="control-label" for="slider-zoom">
+                <span>Zoom</span>
+                <span id="val-zoom" class="val-badge">100%</span>
+              </label>
+              <input type="range" id="slider-zoom" class="range-slider" min="50" max="200" value="100" step="2">
+            </div>
 
-      <!-- Format B fields (shown only when B is selected) -->
-      <div class="fields" id="fields-b" hidden>
-        <label class="field" for="input-name">
-          <span class="field__label">Your Name</span>
-          <input class="field__input" id="input-name" type="text" placeholder="Akshat Srivastava" maxlength="40" autocomplete="name">
-        </label>
-        <label class="field" for="input-stack">
-          <span class="field__label">Stack / Role</span>
-          <input class="field__input" id="input-stack" type="text" placeholder="Full-Stack · Builder · Founder" maxlength="60">
-        </label>
-        <div class="field field--title">
-          <span class="field__label">Your Builder Title</span>
-          <div class="builder-title">
-            <span class="builder-title__text" id="builder-title-display">Prompt Whisperer</span>
-            <button class="btn btn--ghost btn--sm" id="btn-reroll" aria-label="Generate new builder title">🎲 Re-roll</button>
+            <div class="control-group">
+              <label class="control-label" for="slider-offset-x">
+                <span>Position X</span>
+                <span id="val-offset-x" class="val-badge">0px</span>
+              </label>
+              <input type="range" id="slider-offset-x" class="range-slider" min="-150" max="150" value="0" step="2">
+            </div>
+
+            <div class="control-group">
+              <label class="control-label" for="slider-offset-y">
+                <span>Position Y</span>
+                <span id="val-offset-y" class="val-badge">0px</span>
+              </label>
+              <input type="range" id="slider-offset-y" class="range-slider" min="-150" max="150" value="0" step="2">
+            </div>
+
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-change-photo" style="margin-top: 6px; width: 100%;">📷 Change Photo</button>
+          </div>
+
+          <!-- Format B fields -->
+          <div class="fields" id="fields-b">
+            <label class="field" for="input-name">
+              <span class="field__label">Your Name</span>
+              <input class="field__input" id="input-name" type="text" placeholder="Akshat Srivastava" maxlength="40" autocomplete="name">
+            </label>
+            <label class="field" for="input-stack">
+              <span class="field__label">Stack / Role</span>
+              <input class="field__input" id="input-stack" type="text" placeholder="Full-Stack · Builder · Founder" maxlength="60">
+            </label>
+            <div class="field field--title">
+              <label class="field__label" for="input-title">Your Builder Title</label>
+              <div class="builder-title-wrap">
+                <input class="field__input builder-title__input" id="input-title" type="text" placeholder="Prompt Whisperer" maxlength="40">
+                <button type="button" class="btn btn--ghost btn--sm" id="btn-reroll" aria-label="Shuffle builder title" title="Shuffle builder title">🎲 Re-roll</button>
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn btn--primary btn--lg" id="btn-generate">Generate My Graphic ✨</button>
+        </div>
+
+        <!-- RIGHT COLUMN: Live Preview -->
+        <div class="step-config__preview">
+          <div class="live-preview-box">
+            <img id="photo-preview" alt="Your uploaded photo" class="photo-preview__img" style="width:100%; height:auto; aspect-ratio:4/5; object-fit:cover;">
+            <span class="live-preview-badge">Live Preview</span>
           </div>
         </div>
       </div>
-
-      <button class="btn btn--primary btn--lg" id="btn-generate">Generate My Graphic ✨</button>
     </section>
 
     <!-- STEP 3: Output -->
@@ -123,7 +173,6 @@
   <!-- FOOTER -->
   <footer class="site-footer">
     <img src="assets/brand/footer_trees.png" alt="" aria-hidden="true" class="footer__trees">
-    <p>HH Goa 2026 · <a href="https://forms.gle/jM5hTaGvsrfEfixPA" target="_blank" rel="noopener">Submit your entry</a></p>
   </footer>
 
   <!-- heic2any CDN -->
@@ -134,4 +183,5 @@
   <!-- App entry point -->
   <script type="module" src="scripts/main.js"></script>
 </body>
+
 </html>
