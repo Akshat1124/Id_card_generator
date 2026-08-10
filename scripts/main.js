@@ -24,6 +24,13 @@ const inputName = document.getElementById('input-name')
 const inputStack = document.getElementById('input-stack')
 const inputTitle = document.getElementById('input-title')
 const btnReroll = document.getElementById('btn-reroll')
+const sliderZoom = document.getElementById('slider-zoom')
+const valZoom = document.getElementById('val-zoom')
+const sliderOffsetX = document.getElementById('slider-offset-x')
+const valOffsetX = document.getElementById('val-offset-x')
+const sliderOffsetY = document.getElementById('slider-offset-y')
+const valOffsetY = document.getElementById('val-offset-y')
+const btnResetPhoto = document.getElementById('btn-reset-photo')
 const btnGenerate = document.getElementById('btn-generate')
 const outputPreview = document.getElementById('output-preview')
 const btnDownload = document.getElementById('btn-download')
@@ -94,6 +101,36 @@ btnFormatB.addEventListener('click', () => setFormat('b'))
 btnReroll.addEventListener('click', () => {
   currentBuilderTitle = randomBuilderTitle()
   inputTitle.value = currentBuilderTitle
+})
+
+// ─── PHOTO CONTROLS ───────────────────────────────────────────────────────────
+function updateSliderBackground(slider) {
+  const min = parseFloat(slider.min) || 0
+  const max = parseFloat(slider.max) || 100
+  const val = parseFloat(slider.value) || 0
+  const percentage = ((val - min) / (max - min)) * 100
+  slider.style.setProperty('--progress', `${percentage}%`)
+}
+
+function handleSliderInput(slider, labelEl, unit) {
+  slider.addEventListener('input', () => {
+    labelEl.textContent = `${slider.value}${unit}`
+    updateSliderBackground(slider)
+  })
+  updateSliderBackground(slider) // Init
+}
+
+handleSliderInput(sliderZoom, valZoom, '%')
+handleSliderInput(sliderOffsetX, valOffsetX, 'px')
+handleSliderInput(sliderOffsetY, valOffsetY, 'px')
+
+btnResetPhoto.addEventListener('click', () => {
+  sliderZoom.value = 100; valZoom.textContent = '100%'
+  sliderOffsetX.value = 0; valOffsetX.textContent = '0px'
+  sliderOffsetY.value = 0; valOffsetY.textContent = '0px'
+  updateSliderBackground(sliderZoom)
+  updateSliderBackground(sliderOffsetX)
+  updateSliderBackground(sliderOffsetY)
 })
 
 // ─── GENERATE ─────────────────────────────────────────────────────────────────

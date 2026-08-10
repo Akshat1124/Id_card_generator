@@ -215,6 +215,102 @@
 }
 
 /* =========================================================
+   PHOTO CONTROLS & SLIDERS
+   ========================================================= */
+.photo-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  background: rgba(0, 0, 0, 0.2);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+}
+
+.photo-controls__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xs);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.control-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-secondary);
+}
+
+.val-badge {
+  color: var(--color-brand-accent);
+  font-weight: 700;
+}
+
+/* Custom Range Slider */
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  /* Use a gradient to create the "filled" effect based on the --progress variable */
+  background: linear-gradient(to right, var(--color-brand-accent) var(--progress, 50%), rgba(255, 255, 255, 0.2) var(--progress, 50%));
+  border-radius: var(--radius-pill);
+  outline: none;
+  cursor: pointer;
+  margin: 10px 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-brand-accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  background: var(--color-brand-accent-h);
+}
+
+.range-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.range-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-brand-accent);
+  cursor: pointer;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.2);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.range-slider::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  background: var(--color-brand-accent-h);
+}
+
+.range-slider::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+/* =========================================================
    FIELDS
    ========================================================= */
 .fields {
