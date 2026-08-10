@@ -57,9 +57,11 @@ export async function shareToX(blob, format) {
   const filename = format === 'a' ? DOWNLOAD_FILENAME_A : DOWNLOAD_FILENAME_B
   const file = new File([blob], filename, { type: 'image/png' })
 
-  // Primary: native share with the image attached — try on ALL platforms, not
-  // just mobile. Desktop Chrome/Edge/Win11 and macOS Safari support file shares.
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
+  // Primary: native share with the image attached — try on mobile platforms.
+  // We skip this on desktop because the OS share sheet interrupts the flow,
+  // and we prefer going straight to the Twitter intent.
+  const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
+  if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({ files: [file], text: TWEET_TEXT, title: 'HH Goa 2026' })
       return 'shared'

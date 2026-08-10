@@ -2,7 +2,7 @@
 // App bootstrap. Wires all modules together.
 
 import { validateFile, fileToImageBitmap } from './upload.js'
-import { compositeFrameA, compositeFrameB, randomBuilderTitle } from './canvas.js'
+import { compositeFrameA, compositeFrameB } from './canvas.js'
 import { downloadImage, shareToX, DOWNLOAD_FILENAME_A, DOWNLOAD_FILENAME_B } from './share.js'
 import { showStep, setLoading, showToast, showUploadError, clearUploadError } from './ui.js'
 
@@ -10,7 +10,38 @@ import { showStep, setLoading, showToast, showUploadError, clearUploadError } fr
 let currentImageBitmap = null
 let currentBlob = null
 let currentFormat = 'b'  // 'a' | 'b'
-let currentBuilderTitle = randomBuilderTitle()
+
+let previewDebounceTimeout = null
+async function updateLivePreview() {
+  if (!currentImageBitmap) return
+  try {
+    let blob
+    const fields = {
+      name: inputName.value.trim(),
+      stack: inputStack.value.trim(),
+      teamName: inputTeam.value.trim() || 'Your Team Name',
+      zoom: parseFloat(sliderZoom.value) / 100,
+      offsetX: parseFloat(sliderOffsetX.value),
+      offsetY: parseFloat(sliderOffsetY.value),
+    }
+
+    if (currentFormat === 'a') {
+      blob = await compositeFrameA(currentImageBitmap, fields)
+    } else {
+      blob = await compositeFrameB(currentImageBitmap, fields)
+    }
+    const oldUrl = photoPreview.src
+    photoPreview.src = URL.createObjectURL(blob)
+    if (oldUrl.startsWith('blob:')) URL.revokeObjectURL(oldUrl)
+  } catch (e) {
+    console.error('Live preview error:', e)
+  }
+}
+
+function debouncedUpdateLivePreview() {
+  clearTimeout(previewDebounceTimeout)
+  previewDebounceTimeout = setTimeout(updateLivePreview, 150)
+}
 
 // ─── DOM REFS ─────────────────────────────────────────────────────────────────
 const uploadZone = document.getElementById('upload-zone')
@@ -22,8 +53,7 @@ const btnFormatB = document.getElementById('btn-format-b')
 const fieldsB = document.getElementById('fields-b')
 const inputName = document.getElementById('input-name')
 const inputStack = document.getElementById('input-stack')
-const inputTitle = document.getElementById('input-title')
-const btnReroll = document.getElementById('btn-reroll')
+const inputTeam = document.getElementById('input-team')
 const sliderZoom = document.getElementById('slider-zoom')
 const valZoom = document.getElementById('val-zoom')
 const sliderOffsetX = document.getElementById('slider-offset-x')
@@ -46,17 +76,7 @@ async function handleFile(file) {
   setLoading(true)
   try {
     currentImageBitmap = await fileToImageBitmap(file)  // throws if heic2any missing
-
-    // ADR-009: use regular canvas (not OffscreenCanvas) for Safari compatibility
-    const previewCanvas = document.createElement('canvas')
-    previewCanvas.width = currentImageBitmap.width
-    previewCanvas.height = currentImageBitmap.height
-    previewCanvas.getContext('2d').drawImage(currentImageBitmap, 0, 0)
-    const previewObjectURL = await new Promise((resolve) => {
-      previewCanvas.toBlob((blob) => resolve(URL.createObjectURL(blob)), 'image/jpeg', 0.8)
-    })
-    photoPreview.src = previewObjectURL
-    inputTitle.value = currentBuilderTitle
+    await updateLivePreview()
     showStep('step-config')
   } catch (e) {
     // Show the specific error message if it came from our guards, otherwise generic
@@ -92,16 +112,15 @@ function setFormat(fmt) {
   btnFormatA.classList.toggle('format-toggle__btn--active', fmt === 'a')
   btnFormatB.classList.toggle('format-toggle__btn--active', fmt === 'b')
   fieldsB.hidden = fmt !== 'b'
+  debouncedUpdateLivePreview()
 }
 
 btnFormatA.addEventListener('click', () => setFormat('a'))
 btnFormatB.addEventListener('click', () => setFormat('b'))
 
-// ─── BUILDER TITLE RE-ROLL ────────────────────────────────────────────────────
-btnReroll.addEventListener('click', () => {
-  currentBuilderTitle = randomBuilderTitle()
-  inputTitle.value = currentBuilderTitle
-})
+inputName.addEventListener('input', debouncedUpdateLivePreview)
+inputStack.addEventListener('input', debouncedUpdateLivePreview)
+inputTeam.addEventListener('input', debouncedUpdateLivePreview)
 
 // ─── PHOTO CONTROLS ───────────────────────────────────────────────────────────
 function updateSliderBackground(slider) {
@@ -116,6 +135,7 @@ function handleSliderInput(slider, labelEl, unit) {
   slider.addEventListener('input', () => {
     labelEl.textContent = `${slider.value}${unit}`
     updateSliderBackground(slider)
+    debouncedUpdateLivePreview()
   })
   updateSliderBackground(slider) // Init
 }
@@ -131,6 +151,7 @@ btnResetPhoto.addEventListener('click', () => {
   updateSliderBackground(sliderZoom)
   updateSliderBackground(sliderOffsetX)
   updateSliderBackground(sliderOffsetY)
+  debouncedUpdateLivePreview()
 })
 
 // ─── GENERATE ─────────────────────────────────────────────────────────────────
@@ -138,14 +159,19 @@ btnGenerate.addEventListener('click', async () => {
   if (!currentImageBitmap) return
   setLoading(true)
   try {
+    const fields = {
+      name: inputName.value.trim(),
+      stack: inputStack.value.trim(),
+      teamName: inputTeam.value.trim() || 'Your Team Name',
+      zoom: parseFloat(sliderZoom.value) / 100,
+      offsetX: parseFloat(sliderOffsetX.value),
+      offsetY: parseFloat(sliderOffsetY.value),
+    }
+
     if (currentFormat === 'a') {
-      currentBlob = await compositeFrameA(currentImageBitmap)
+      currentBlob = await compositeFrameA(currentImageBitmap, fields)
     } else {
-      currentBlob = await compositeFrameB(currentImageBitmap, {
-        name: inputName.value.trim(),
-        stack: inputStack.value.trim(),
-        builderTitle: inputTitle.value.trim() || currentBuilderTitle,
-      })
+      currentBlob = await compositeFrameB(currentImageBitmap, fields)
     }
     outputPreview.src = URL.createObjectURL(currentBlob)
     showStep('step-output')
