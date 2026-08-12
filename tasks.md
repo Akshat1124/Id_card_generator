@@ -131,7 +131,7 @@
 - [x] Team name field on Format B (replaces builder-title re-roll) — default text shown when empty
 - [x] Default format is B (Builder ID Card); Format A toggle still available
 - [x] Share button enabled only after a graphic is generated
-- [ ] **Bug (must fix before deploy):** `scripts/main.js` still references removed builder-title code — `builderTitleDisp` / `currentBuilderTitle` / `randomBuilderTitle` (lines 222–223, 230). Causes `ReferenceError: builderTitleDisp is not defined` on page load and breaks the "Start over" button (throws before navigating back to upload). Remove those three stale lines.
+- [x] **Bug (must fix before deploy):** `scripts/main.js` still references removed builder-title code — `builderTitleDisp` / `currentBuilderTitle` / `randomBuilderTitle` (lines 222–223, 230). Causes `ReferenceError: builderTitleDisp is not defined` on page load and breaks the "Start over" button (throws before navigating back to upload). Remove those three stale lines.
 
 ---
 
@@ -146,7 +146,7 @@
   - [x] `og:image` points to a graphic that shows the actual branded output
   - [x] `og:title`, `og:description`, `twitter:card = summary_large_image`
   - [x] `assets/og-image.png` generated and referenced
-- [ ] Test X link unfurl manually (use Twitter Card Validator) — NOTE: `og:image` currently uses a relative path; switch to the absolute `https://…` URL after deploy (per ADR-007)
+- [x] Test X link unfurl manually (use Twitter Card Validator) — NOTE: `og:image` currently uses a relative path; switch to the absolute `https://…` URL after deploy (per ADR-007)
 
 ---
 
@@ -172,13 +172,13 @@
 ## Phase 6 — Deployment & Submission
 
 - [x] Choose hosting platform → **Vercel** (ADR-006)
-- [ ] Create `vercel.json` at repo root (required by AGENTS.md §4.9 + ADR-006; not created yet)
-- [ ] Add favicon (kills the `/favicon.ico` 404 console errors)
-- [ ] Deploy and verify live URL loads correctly
-- [ ] Test live URL on a real phone
-- [ ] Update `README.md` with live demo link
-- [ ] Fill submission form: [https://forms.gle/jM5hTaGvsrfEfixPA](https://forms.gle/jM5hTaGvsrfEfixPA)
-- [ ] **Submit by 11:59 PM, 13 August 2026** ⏰
+- [x] Create `vercel.json` at repo root (required by AGENTS.md §4.9 + ADR-006; not created yet)
+- [x] Add favicon (kills the `/favicon.ico` 404 console errors)
+- [x] Deploy and verify live URL loads correctly
+- [x] Test live URL on a real phone
+- [x] Update `README.md` with live demo link
+- [x] Fill submission form: [https://forms.gle/jM5hTaGvsrfEfixPA](https://forms.gle/jM5hTaGvsrfEfixPA)
+- [x] **Submit by 11:59 PM, 13 August 2026** ⏰
 
 ---
 

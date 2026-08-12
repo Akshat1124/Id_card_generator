@@ -2,7 +2,7 @@
 
 // ─── TWEET COPY ───────────────────────────────────────────────────────────────
 // Replace GENERATOR_URL with the live Vercel URL after first deploy.
-const GENERATOR_URL = 'https://hhgoa-frame.vercel.app'
+const GENERATOR_URL = 'https://hh-goa-2026-frame-tau.vercel.app'
 
 // Format A — PFP frame
 const TWEET_TEXT_A = [

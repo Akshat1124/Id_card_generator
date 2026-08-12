@@ -120,7 +120,7 @@ Provide a single, mobile-friendly webpage where a user:
 |---|---|
 | FR-22 | "Share to X" button opens Twitter's Intent URL with pre-filled text |
 | FR-23 | Pre-filled caption must include `#FrameInGoa` |
-| FR-24 | Suggested pre-filled caption: _"I'm going to HH Goa 2026! 🚀 #FrameInGoa #HHGoa2026"_ |
+| FR-24 | Suggested pre-filled caption: _"Here's my HH Goa 2026 Builder ID Card 🪪✨..."_ |
 | FR-25 | If sharing via link (not direct image attach), the link's OG image must show the actual graphic |
 | FR-26 | On mobile devices with Web Share API support, offer the native share sheet as primary CTA |
 

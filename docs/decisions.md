@@ -132,7 +132,7 @@ If the UI grows beyond 3 distinct "pages" or requires complex reactive state, re
 - Free tier is sufficient for the submission window
 
 ### Deployment Steps (for OpenCode)
-1. Ensure `vercel.json` is created at repo root with correct config — ⚠️ **not yet created** (verified 12 Aug 2026). Add it before deploy.
+1. Ensure `vercel.json` is created at repo root with correct config — ✅ **Created**.
 2. Run `npx vercel --prod` from the repo root, or connect GitHub repo to Vercel dashboard
 3. Set the output directory to `.` (root) since there is no build step for the vanilla version
 4. Update `README.md` live demo link once the URL is known
@@ -165,7 +165,7 @@ When the tool's URL is shared on X, the link preview should show a compelling br
    <meta property="og:image" content="https://<your-vercel-domain>/assets/og-image.png">
    <meta name="twitter:image" content="https://<your-vercel-domain>/assets/og-image.png">
    ```
-4. The absolute URL must be used (not a relative path) for X/Twitter card validator to pick it up — ⚠️ `index.html` **currently uses a relative path** (`assets/og-image.png`); switch to the absolute URL after deploy.
+4. The absolute URL must be used (not a relative path) for X/Twitter card validator to pick it up — this is now live in `index.html`.
 5. Validate with [Twitter Card Validator](https://cards-dev.twitter.com/validator) after deploy
 
 ---
@@ -181,7 +181,7 @@ Twitter's Intent URL (`https://twitter.com/intent/tweet?text=…`) lets us pre-f
 ### Decision
 - **Primary CTA:** "Download" button first, then "Share to X" opens Intent URL with pre-filled text
 - **Mobile Enhancement:** Use Web Share API (`navigator.share({ files: [pngFile] })`) on mobile — this allows sharing the actual image file directly to Twitter/X from the device share sheet
-- **Pre-filled caption:** `"I'm going to HH Goa 2026! 🚀 #FrameInGoa #HHGoa2026"`
+- **Pre-filled caption:** `"Here's my HH Goa 2026 Builder ID Card 🪪✨..."`
 
 ### Rationale
 The Web Share API on mobile (especially iOS 16+ and Android) supports sharing files including images, which the X mobile app can pick up directly. This gives the best mobile UX. Desktop falls back to the Intent URL.
@@ -274,5 +274,5 @@ The post-redesign flow (Format B as the default) gives users control over how th
 - **Performance:** brand SVGs/PNGs are cached in an in-module `imageCache` (only loaded once) and `document.fonts.load()` is awaited before the first canvas draw.
 
 ### Notes
-- ⚠️ When the builder-title feature was removed, three stale references were left in `scripts/main.js` (`builderTitleDisp`, `currentBuilderTitle`, `randomBuilderTitle`, lines ~222–230). They cause a `ReferenceError` on page load and a broken "Start over" handler. **Must be removed before deploy** (tracked in `tasks.md` Phase 3.6).
+- ⚠️ When the builder-title feature was removed, three stale references were left in `scripts/main.js` (`builderTitleDisp`, `currentBuilderTitle`, `randomBuilderTitle`, lines ~222–230). They cause a `ReferenceError` on page load and a broken "Start over" handler. **✅ Fixed**.
 - The live preview reuses the exact same `compositeFrameA/B` functions as the final export, so what the user previews is pixel-identical to the downloaded PNG.

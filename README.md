@@ -51,13 +51,13 @@ A single-page web application that:
 ## Status
 
 - ✅ Implemented & verified in headless Chrome (390 px mobile + desktop): upload → live preview → zoom/pan → generate → download / share-on-X, for both formats (1080×1080 / 1080×1350).
-- 🚧 **Not yet deployed.** Before deployment: fix the stale builder-title references in `scripts/main.js` (boot `ReferenceError` + broken "Start over"), create `vercel.json`, and add a favicon. See `tasks.md` Phase 3.6 / Phase 6.
+- ✅ **Deployed.** 
 
 ---
 
 ## Live Demo
 
-_Link will be added once deployed._
+[https://hh-goa-2026-frame-tau.vercel.app](https://hh-goa-2026-frame-tau.vercel.app/)
 
 ---
 
