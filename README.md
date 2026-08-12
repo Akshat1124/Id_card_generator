@@ -37,12 +37,21 @@ A single-page web application that:
 
 | | Format A — PFP Frame | Format B — Builder ID Card |
 |---|---|---|
-| **Description** | Overlay/frame that wraps the photo; perfect for an X profile picture | Event badge-style card with photo + name + stack/role + generated builder title |
-| **Input fields** | Photo only | Photo + Name + Stack/Role |
+| **Description** | Overlay/frame that wraps the photo; perfect for an X profile picture | Event badge-style card with photo + name + stack/role + team name |
+| **Input fields** | Photo only (zoom/position optional) | Photo + Name + Stack/Role + Team name |
 | **Output** | Square frame composite | Rectangular ID card |
 | **Primary use** | X profile picture | Post as a shareable image |
 
 > **Scope decision:** We implement **both formats**. Users pick which they want on the page.
+>
+> **Photo controls:** both formats include live preview with **zoom** (100–180 %) and **horizontal/vertical position** sliders, plus a "Reset photo" button.
+
+---
+
+## Status
+
+- ✅ Implemented & verified in headless Chrome (390 px mobile + desktop): upload → live preview → zoom/pan → generate → download / share-on-X, for both formats (1080×1080 / 1080×1350).
+- 🚧 **Not yet deployed.** Before deployment: fix the stale builder-title references in `scripts/main.js` (boot `ReferenceError` + broken "Start over"), create `vercel.json`, and add a favicon. See `tasks.md` Phase 3.6 / Phase 6.
 
 ---
 
@@ -56,12 +65,13 @@ _Link will be added once deployed._
 
 | Layer | Choice | Rationale |
 |---|---|---|
-| Framework | **Vanilla HTML/CSS/JS** (or Vite if needed) | Zero cold-start, no build step for reviewers, fast load on mobile |
+| Framework | **Vanilla HTML/CSS/JS (ES modules)** | Zero build step, fast load on mobile |
+| Fonts | Google Fonts: Inter, Playfair Display, Caveat, Victor Mono | Typography from hhgoa.com |
 | Image compositing | **HTML5 Canvas API** | Client-side, instant, no server round-trip |
 | HEIC support | **heic2any** (JS lib) | Converts iPhone HEIC → PNG in-browser |
-| Sharing | Web Share API + Twitter Intent URL | Pre-fills caption + `#FrameInGoa`; works on mobile |
-| Hosting | **Vercel / Netlify / GitHub Pages** | TBD — static hosting, zero cost |
-| OG image (for link preview) | Dynamic `/og` route or pre-generated image | Ensures X unfurl shows the actual graphic |
+| Sharing | Web Share API (mobile) + Twitter Intent URL + clipboard copy (desktop) | Pre-fills caption + `#FrameInGoa`; works on all platforms |
+| Hosting | **Vercel** (static, zero cost) | Confirmed decision — see `docs/decisions.md` ADR-006 |
+| OG image (for link preview) | Pre-generated static `assets/og-image.png` | Ensures X unfurl shows the graphic |
 
 ---
 
@@ -70,25 +80,28 @@ _Link will be added once deployed._
 ```
 Id_card_generator/
 ├── index.html                  # Main entry point
+├── vercel.json                 # (to create — Vercel static config, see tasks.md Phase 6)
 ├── styles/
 │   ├── main.css                # Global design system tokens & layout
 │   └── components.css          # Component-specific styles
 ├── scripts/
-│   ├── main.js                 # App bootstrap & routing
+│   ├── main.js                 # App bootstrap, state, live preview, event wiring
 │   ├── canvas.js               # Canvas compositing logic (both formats)
 │   ├── upload.js               # File input + HEIC conversion
-│   ├── share.js                # Twitter Intent & Web Share API
-│   └── ui.js                   # DOM helpers, step transitions
+│   ├── share.js                # Twitter Intent, Web Share API, clipboard
+│   └── ui.js                   # Step wizard, toasts, loading, errors
 ├── assets/
-│   ├── frame-a/                # PFP frame overlay PNGs (multiple variants)
-│   ├── frame-b/                # ID card background template(s)
-│   └── fonts/                  # Self-hosted web fonts (if needed)
+│   ├── og-image.png            # Static X/Twitter link-preview image
+│   ├── brand/                  # Official hhgoa.com assets (wordmarks, goa_hindi, etc.)
+│   ├── frame-a/                # Format A frame overlay PNG (1080×1080)
+│   ├── frame-b/                # Format B card background PNG (1080×1350)
+│   └── fonts/                  # (empty; Google Fonts CDN)
 ├── docs/
 │   ├── architecture.md         # Technical architecture & data flow
 │   ├── decisions.md            # Architecture decision records (ADRs)
-│   └── design-brief.md         # Visual design guidelines & brand notes
-├── project_brain/
-│   └── HH_Goa_2026_Shortlisting_Task_Frame_ID_Generator.pdf
+│   ├── design-brief.md         # Visual design guidelines & brand notes
+│   └── brand-assets-guide.md   # How to use the official hhgoa.com assets
+├── project_brain/              # READ-ONLY reference material
 ├── README.md
 ├── AGENTS.md                   # Instructions for AI coding assistants
 ├── PRD.md                      # Product Requirements Document
@@ -119,20 +132,21 @@ python -m http.server 8080
 Upload Photo
     │
     ▼
-Choose Format (A: PFP Frame  |  B: Builder ID Card)
+Configure — format toggle (A: PFP Frame | B: ID Card) + live preview
+    │                    with photo zoom & position sliders
+    ▼
+[Format B only] Fill in Name / Stack / Role / Team name
     │
     ▼
-[Format B only] Fill in Name / Stack / Role
+Generate → Canvas composites the graphic (client-side)
     │
     ▼
-Canvas composites graphic  ←── near-instant (client-side)
-    │
-    ▼
-Preview shown on screen
+Output preview on screen
     │
     ├──── Download button  →  saves PNG to device
     │
     └──── Share to X button  →  opens pre-filled tweet with #FrameInGoa
+                                (Web Share API on mobile; clipboard + intent on desktop)
 ```
 
 ---

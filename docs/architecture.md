@@ -79,13 +79,18 @@ ImageBitmap (in memory)             ← passed to compositing step
 
 ```
 1. Create offscreen canvas: 1080×1350 px
-2. drawImage(cardBackgroundPNG, 0, 0, 1080, 1350)  ← template background
-3. drawImage(userPhoto, x, y, w, h)                ← photo in designated zone
-4. ctx.fillText(name, ...)                          ← render name
-5. ctx.fillText(stack, ...)                         ← render stack/role
-6. ctx.fillText(builderTitle, ...)                  ← render generated title
-7. canvas.toBlob('image/png') → Blob
+2. draw full card (background texture, header assets, photo zone)   ← composited directly
+3. drawImage(userPhoto, x, y, w, h)  with zoom/pan crop (cover-fit) ← photo zone (arched clip)
+4. ctx.fillText(name, ...)                          ← render name (Playfair Display)
+5. ctx.fillText(stack, ...)                         ← render stack/role (dot-separated, Inter)
+6. ctx.fillText(teamName, ...)                      ← render team name (Caveat script)
+7. draw footer (GOA · AUGUST 2026 || #HHGOA2026) + corner sparkles
+8. canvas.toBlob('image/png') → Blob
 ```
+
+> **Live preview:** the same `compositeFrameA/B` functions power the on-screen preview, regenerated
+> on every change (debounced 150 ms) with zoom / position sliders passed as `fields.zoom / offsetX / offsetY`.
+> Brand assets are cached in an in-module `imageCache` to keep recomposites fast.
 
 ### Step 3 — Download
 
@@ -114,10 +119,12 @@ window.open(url, '_blank')
 **Enhanced (Web Share API on mobile):**
 ```
 const file = new File([blob], 'hh-goa-2026.png', { type: 'image/png' })
-if (navigator.canShare?.({ files: [file] })) {
+if (isMobile && navigator.canShare?.({ files: [file] })) {
   await navigator.share({ files: [file], text: tweetText })
 } else {
-  // Fallback to Intent URL above
+  // Desktop fallback: copy PNG to clipboard, then open Twitter Intent URL
+  await copyImageToClipboard(blob)
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(tweetText), '_blank')
 }
 ```
 
@@ -144,7 +151,7 @@ main.js
 | Output format | PNG via `canvas.toBlob('image/png')` | Lossless, widely supported |
 | Output resolution | 1080×1080 (A), 1080×1350 (B) | Twitter/X optimal sizes |
 | Sharing | Twitter Intent URL + Web Share API fallback | Works on all platforms |
-| Hosting | Static (Vercel / Netlify / GitHub Pages) | Free, instant, globally CDN'd |
+| Hosting | Static on **Vercel** | Free, instant, globally CDN'd (ADR-006) |
 
 > Full rationale for each decision is in [`docs/decisions.md`](./decisions.md).
 

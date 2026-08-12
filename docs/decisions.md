@@ -132,7 +132,7 @@ If the UI grows beyond 3 distinct "pages" or requires complex reactive state, re
 - Free tier is sufficient for the submission window
 
 ### Deployment Steps (for OpenCode)
-1. Ensure `vercel.json` is created at repo root with correct config
+1. Ensure `vercel.json` is created at repo root with correct config — ⚠️ **not yet created** (verified 12 Aug 2026). Add it before deploy.
 2. Run `npx vercel --prod` from the repo root, or connect GitHub repo to Vercel dashboard
 3. Set the output directory to `.` (root) since there is no build step for the vanilla version
 4. Update `README.md` live demo link once the URL is known
@@ -165,7 +165,7 @@ When the tool's URL is shared on X, the link preview should show a compelling br
    <meta property="og:image" content="https://<your-vercel-domain>/assets/og-image.png">
    <meta name="twitter:image" content="https://<your-vercel-domain>/assets/og-image.png">
    ```
-4. The absolute URL must be used (not a relative path) for X/Twitter card validator to pick it up
+4. The absolute URL must be used (not a relative path) for X/Twitter card validator to pick it up — ⚠️ `index.html` **currently uses a relative path** (`assets/og-image.png`); switch to the absolute URL after deploy.
 5. Validate with [Twitter Card Validator](https://cards-dev.twitter.com/validator) after deploy
 
 ---
@@ -254,3 +254,25 @@ In `index.html` after the `heic2any` script tag, add an inline check:
 </script>
 ```
 Then in `upload.js`, check `window.__heic2anyLoaded` before attempting HEIC conversion.
+
+---
+
+## ADR-011: Live Preview with Debounced Recomposite + Photo Controls
+
+**Date:** 12 August 2026  
+**Status:** ✅ Accepted
+
+### Context
+The post-redesign flow (Format B as the default) gives users control over how their photo is placed inside the graphic. Users need immediate visual feedback while adjusting.
+
+### Decision
+- **Live preview:** every change to a format, text field, or slider triggers a full recomposite on an offscreen canvas and swaps the `<img>` source, debounced at **150 ms** (`debouncedUpdateLivePreview` in `main.js`).
+- **Photo controls:** a zoom slider (100–180 %) and horizontal/vertical position sliders (±100) are passed through `fields.zoom / offsetX / offsetY` into `drawCover()` in `canvas.js`, which re-derives the source-crop rectangle and **clamps it** so it never samples outside the image.
+- **"Reset photo" button** restores zoom = 100 / offsets = 0.
+- **Team name field replaces the builder-title re-roll** (removed `BUILDER_TITLES` / `randomBuilderTitle`): Format B now renders a team name under the divider in Caveat script.
+- **Default format is B** (Builder ID Card); Format A remains available via the toggle.
+- **Performance:** brand SVGs/PNGs are cached in an in-module `imageCache` (only loaded once) and `document.fonts.load()` is awaited before the first canvas draw.
+
+### Notes
+- ⚠️ When the builder-title feature was removed, three stale references were left in `scripts/main.js` (`builderTitleDisp`, `currentBuilderTitle`, `randomBuilderTitle`, lines ~222–230). They cause a `ReferenceError` on page load and a broken "Start over" handler. **Must be removed before deploy** (tracked in `tasks.md` Phase 3.6).
+- The live preview reuses the exact same `compositeFrameA/B` functions as the final export, so what the user previews is pixel-identical to the downloaded PNG.

@@ -40,9 +40,9 @@
   --space-xl:   40px;
   --space-2xl:  64px;
 
-  /* Typography — Victor Mono confirmed from hhgoa.com Network tab */
-  --font-body:    'Victor Mono', 'Inter', monospace;
-  --font-heading: 'Victor Mono', 'Inter', monospace;
+  /* Typography — Imbue (display/headings) + Victor Mono (body/labels), matching hhgoa.com */
+  --font-body:    'Victor Mono', 'Courier New', monospace;
+  --font-heading: 'Imbue', Georgia, serif;
   --font-mono:    'Victor Mono', monospace;
 
   /* Radii — sharp corners, no pills */

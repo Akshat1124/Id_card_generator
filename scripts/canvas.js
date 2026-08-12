@@ -120,10 +120,10 @@ function drawFrameAFallback(ctx, canvas) {
   ctx.fillStyle = '#FEE101'
   ctx.fillRect(0, FRAME_A_SIZE - 120, FRAME_A_SIZE, 120)
   ctx.fillStyle = '#0A0A0A'
-  ctx.font = '700 48px Inter, sans-serif'
+  ctx.font = '700 48px "Victor Mono", monospace'
   ctx.textAlign = 'center'
   ctx.fillText('HH GOA 2026', FRAME_A_SIZE / 2, FRAME_A_SIZE - 55)
-  ctx.font = '500 24px Inter, sans-serif'
+  ctx.font = '400 24px "Victor Mono", monospace'
   ctx.textAlign = 'right'
   ctx.fillText('#FrameInGoa', FRAME_A_SIZE - 24, FRAME_A_SIZE - 20)
 }
@@ -173,12 +173,12 @@ export async function compositeFrameB(userPhoto, fields = {}) {
 
   // Ensure fonts are loaded before drawing text on canvas
   await Promise.all([
-    document.fonts.load('800 64px Inter'),
-    document.fonts.load('700 40px Inter'),
-    document.fonts.load('600 32px Inter'),
-    document.fonts.load('500 24px Inter'),
-    document.fonts.load('800 70px "Playfair Display"'),
-    document.fonts.load('700 70px Caveat'),
+    document.fonts.load('900 64px Imbue'),
+    document.fonts.load('800 64px Imbue'),
+    document.fonts.load('700 48px Imbue'),
+    document.fonts.load('700 32px "Victor Mono"'),
+    document.fonts.load('600 24px "Victor Mono"'),
+    document.fonts.load('400 20px "Victor Mono"'),
   ])
 
   const canvas = document.createElement('canvas')
@@ -225,7 +225,7 @@ export async function compositeFrameB(userPhoto, fields = {}) {
 
   // "2026"
   ctx.fillStyle = YELLOW
-  ctx.font = '800 32px Inter, sans-serif'
+  ctx.font = '700 32px "Victor Mono", monospace'
   ctx.textAlign = 'center'
   ctx.letterSpacing = '8px'
   ctx.fillText('2026', CARD_W / 2, 210)
@@ -287,13 +287,13 @@ export async function compositeFrameB(userPhoto, fields = {}) {
   
   // Name
   ctx.fillStyle = '#FFFFFF'
-  ctx.font = '800 75px "Playfair Display", serif'
+  ctx.font = '900 75px Imbue, serif'
   ctx.textAlign = 'center'
   ctx.fillText(fields.name || 'Your Name', CARD_W / 2, cursorY)
 
   // Stack/Role
   cursorY += 60
-  ctx.font = '700 24px Inter, sans-serif'
+  ctx.font = '600 24px "Victor Mono", monospace'
   ctx.letterSpacing = '4px'
   const stackText = fields.stack || 'FULL-STACK  •  BUILDER  •  FOUNDER'
   const stackParts = stackText.split(/·|•/g).map(s => s.trim())
@@ -301,7 +301,7 @@ export async function compositeFrameB(userPhoto, fields = {}) {
   ctx.textAlign = 'left'
   let totalW = 0
   const metrics = []
-  ctx.font = '700 24px Inter, sans-serif'
+  ctx.font = '600 24px "Victor Mono", monospace'
   stackParts.forEach((part, i) => {
     const w = ctx.measureText(part).width
     metrics.push({text: part, w})
@@ -335,13 +335,13 @@ export async function compositeFrameB(userPhoto, fields = {}) {
   cursorY += 90
   ctx.fillStyle = YELLOW
   ctx.textAlign = 'center'
-  ctx.font = '700 70px Caveat, cursive'
+  ctx.font = '800 64px Imbue, serif'
   const titleStr = fields.teamName || 'Your Team Name'
   ctx.fillText(titleStr, CARD_W / 2, cursorY)
 
   // Lightning bolts around title
   const titleW = ctx.measureText(titleStr).width
-  ctx.font = '40px Inter'
+  ctx.font = '40px "Victor Mono"'
   ctx.fillText('⚡', (CARD_W / 2) - (titleW / 2) - 40, cursorY - 10)
   ctx.fillText('⚡', (CARD_W / 2) + (titleW / 2) + 40, cursorY - 10)
 
@@ -357,7 +357,7 @@ export async function compositeFrameB(userPhoto, fields = {}) {
   // 7. Footer
 
   // Footer Text
-  ctx.font = '700 20px Inter, sans-serif'
+  ctx.font = '600 20px "Victor Mono", monospace'
   ctx.letterSpacing = '2px'
   
   const ftextY = CARD_H - 60

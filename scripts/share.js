@@ -1,6 +1,30 @@
 // scripts/share.js
 
-const TWEET_TEXT = "I'm going to HH Goa 2026! 🚀 #FrameInGoa #HHGoa2026"
+// ─── TWEET COPY ───────────────────────────────────────────────────────────────
+// Replace GENERATOR_URL with the live Vercel URL after first deploy.
+const GENERATOR_URL = 'https://hhgoa-frame.vercel.app'
+
+// Format A — PFP frame
+const TWEET_TEXT_A = [
+  `Here's my HH Goa 2026 Builder ID Card 🪪✨`,
+  ``,
+  `HH Goa — 4 days, 247 builders, one beach resort in Goa. AI × Crypto. Oct 28–31.`,
+  ``,
+  `Make your own ID card → ${GENERATOR_URL}`,
+  ``,
+  `#FrameInGoa #HHGoa2026 #BuildInPublic`,
+].join('\n')
+
+// Format B — ID card
+const TWEET_TEXT_B = [
+  `Here's my HH Goa 2026 Builder ID Card 🪪✨`,
+  ``,
+  `HH Goa — 4 days, 247 builders, one beach resort in Goa. AI × Crypto. Oct 28–31.`,
+  ``,
+  `Make your own ID card → ${GENERATOR_URL}`,
+  ``,
+  `#FrameInGoa #HHGoa2026 #BuildInPublic`,
+].join('\n')
 const DOWNLOAD_FILENAME_A = 'HH-Goa-2026-frame.png'
 const DOWNLOAD_FILENAME_B = 'HH-Goa-2026-id-card.png'
 
@@ -55,6 +79,7 @@ export async function copyImageToClipboard(blob) {
  */
 export async function shareToX(blob, format) {
   const filename = format === 'a' ? DOWNLOAD_FILENAME_A : DOWNLOAD_FILENAME_B
+  const tweetText = format === 'a' ? TWEET_TEXT_A : TWEET_TEXT_B
   const file = new File([blob], filename, { type: 'image/png' })
 
   // Primary: native share with the image attached — try on mobile platforms.
@@ -63,7 +88,7 @@ export async function shareToX(blob, format) {
   const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)
   if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], text: TWEET_TEXT, title: 'HH Goa 2026' })
+      await navigator.share({ files: [file], text: tweetText, title: 'HH Goa 2026' })
       return 'shared'
     } catch (err) {
       if (err.name === 'AbortError') return 'cancelled'   // user dismissed the sheet
@@ -75,7 +100,7 @@ export async function shareToX(blob, format) {
   // "ready to post" with a single paste.
   await copyImageToClipboard(blob)
 
-  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(TWEET_TEXT)}`
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`
   window.open(url, '_blank', 'noopener')
   return 'intent'
 }

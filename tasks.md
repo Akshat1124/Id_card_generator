@@ -88,12 +88,12 @@
 
 ## Phase 3 — Polish & UX
 
-- [ ] Smooth step transitions (CSS transitions/animations)
-- [ ] Loading state during compositing (brief spinner)
-- [ ] Error states with user-friendly messages
-  - [ ] Unsupported file type
-  - [ ] File too large
-  - [ ] HEIC conversion failure
+- [x] Smooth step transitions (CSS transitions/animations)
+- [x] Loading state during compositing (brief spinner)
+- [x] Error states with user-friendly messages
+  - [x] Unsupported file type
+  - [x] File too large
+  - [x] HEIC conversion failure
 - [ ] Empty state for upload zone (illustrated prompt)
 - [ ] Responsive layout tested at: 390 px, 768 px, 1280 px
 - [ ] Keyboard accessibility (tab order, Enter key on buttons)
@@ -117,7 +117,21 @@
 - [x] `canvas.js`: add `goa_hindi.svg` watermark to Format A (bottom-left) and Format B (footer right)
 - [x] `canvas.js`: use `decorative_border.svg` as the card divider between text zones
 - [x] Full-flow smoke test (390px mobile + desktop) — 0 console errors
+  - ⚠️ Superseded since the redesign — current `main.js` throws a boot `ReferenceError` (see Phase 3.6 bug)
 - [x] Pixel-verify both output formats (1080×1080 / 1080×1350, brand colors correct)
+
+---
+
+## Phase 3.6 — Live Preview & Photo Controls (post-redesign)
+
+- [x] Live canvas preview that regenerates on every change (debounced 150 ms)
+- [x] Photo zoom slider (100–180 %) with filled-track styling
+- [x] Horizontal / vertical position sliders for fine-tuning the crop
+- [x] "Reset photo" button restores zoom = 100 / offsets = 0
+- [x] Team name field on Format B (replaces builder-title re-roll) — default text shown when empty
+- [x] Default format is B (Builder ID Card); Format A toggle still available
+- [x] Share button enabled only after a graphic is generated
+- [ ] **Bug (must fix before deploy):** `scripts/main.js` still references removed builder-title code — `builderTitleDisp` / `currentBuilderTitle` / `randomBuilderTitle` (lines 222–223, 230). Causes `ReferenceError: builderTitleDisp is not defined` on page load and breaks the "Start over" button (throws before navigating back to upload). Remove those three stale lines.
 
 ---
 
@@ -125,13 +139,14 @@
 
 - [x] Finalize Twitter Intent URL with correct parameters
 - [x] Improve desktop share fallback: try Web Share API on all platforms; copy PNG to clipboard + guidance toast when falling back to Intent (Twitter Intent can't auto-attach images)
-- [ ] Decide OG image strategy (see `docs/decisions.md` Q5)
-  - [ ] **Option A:** Static pre-generated OG image (simple, no server)
-  - [ ] **Option B:** Dynamic OG route (requires a small Vercel/Netlify function)
-- [ ] Add `<meta>` OG tags to `index.html`
-  - [ ] `og:image` points to a graphic that shows the actual branded output
-  - [ ] `og:title`, `og:description`, `twitter:card = summary_large_image`
-- [ ] Test X link unfurl manually (use Twitter Card Validator)
+- [x] Decide OG image strategy (see `docs/decisions.md` ADR-007)
+  - [x] **Option A:** Static pre-generated OG image (simple, no server) — chosen
+  - [ ] **Option B:** Dynamic OG route (requires a small Vercel/Netlify function) — not needed
+- [x] Add `<meta>` OG tags to `index.html`
+  - [x] `og:image` points to a graphic that shows the actual branded output
+  - [x] `og:title`, `og:description`, `twitter:card = summary_large_image`
+  - [x] `assets/og-image.png` generated and referenced
+- [ ] Test X link unfurl manually (use Twitter Card Validator) — NOTE: `og:image` currently uses a relative path; switch to the absolute `https://…` URL after deploy (per ADR-007)
 
 ---
 
@@ -156,7 +171,9 @@
 
 ## Phase 6 — Deployment & Submission
 
-- [ ] Choose hosting platform (Vercel / Netlify / GitHub Pages)
+- [x] Choose hosting platform → **Vercel** (ADR-006)
+- [ ] Create `vercel.json` at repo root (required by AGENTS.md §4.9 + ADR-006; not created yet)
+- [ ] Add favicon (kills the `/favicon.ico` 404 console errors)
 - [ ] Deploy and verify live URL loads correctly
 - [ ] Test live URL on a real phone
 - [ ] Update `README.md` with live demo link

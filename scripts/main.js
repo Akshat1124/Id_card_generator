@@ -219,12 +219,9 @@ btnStartOver.addEventListener('click', () => {
   fileInput.value = ''
   inputName.value = ''
   inputStack.value = ''
-  currentBuilderTitle = randomBuilderTitle()
-  builderTitleDisp.textContent = currentBuilderTitle
   setFormat('a')
   showStep('step-upload')
 })
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 showStep('step-upload')
-builderTitleDisp.textContent = currentBuilderTitle
